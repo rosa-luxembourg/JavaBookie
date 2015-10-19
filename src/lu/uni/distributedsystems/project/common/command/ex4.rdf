@@ -1,0 +1,56 @@
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+		xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+		xmlns:myNS="http://www.thebank.lu/myNS/">
+	
+	<rdfs:class rdf:about="http://www.thebank.lu/myNS/Customer">
+		<rdfs:subClassOf
+			rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Resource" />	
+	</rdfs:class>
+
+	<rdf:Property rdf:about="http://www.thebank.lu/myNS/fullname">
+		<rdfs:domain rdf:resource="http://www.thebank.lu/myNS/Customer" />
+		<rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string" />
+	</rdf:Property>
+	
+	<rdf:Property rdf:about="http://www.thebank.lu/myNS/address">
+		<rdfs:domain rdf:resource="http://www.thebank.lu/myNS/Customer" />
+		<rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string" />
+	</rdf:Property>
+	
+	<rdf:Property rdf:about="http://www.thebank.lu/myNS/account">
+		<rdfs:domain rdf:resource="http://www.thebank.lu/myNS/Customer" />
+		<rdfs:range rdf:resource="http://www.thebank.lu/myNS/Account" />
+	</rdf:Property>
+	
+	<rdfs:class rdf:about="http://www.thebank.lu/myNS/Account">
+		<rdfs:subClassOf
+			rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Resource" />	
+	</rdfs:class>
+
+	<rdf:Property rdf:about="http://www.thebank.lu/myNS/balance">
+		<rdfs:domain rdf:resource="http://www.thebank.lu/myNS/Account" />
+		<rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#double" />
+	</rdf:Property>
+	
+	<rdfs:class rdf:about="http://www.thebank.lu/myNS/SavingsAccount">
+		<rdfs:subClassOf
+			rdf:resource="http://www.thebank.lu/myNS/Account" />	
+	</rdfs:class>
+	
+	<rdf:Property rdf:about="http://www.thebank.lu/myNS/interest">
+		<rdfs:domain rdf:resource="http://www.thebank.lu/myNS/SavingsAccount" />
+		<rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#double" />
+	</rdf:Property>
+	
+	<myNS:SavingsAccount rdf:about="http://www.thebank.lu/myNS/SavingsAccount/a2">
+		<myNS:interest>0,03</myNS:interest>
+		<myNS:balance>15075</myNS:balance>
+	</myNS:SavingsAccount>
+	
+	<myNS:Customer rdf:about="http://www.thebank.lu/myNS/Customer/c1">
+		<myNS:fullname>Ben Richerdson</myNS:fullname>
+		<myNS:address>Park Drive 2</myNS:address>
+		<myNS:account>a2</myNS:account>
+	</myNS:Customer>
+	
+</rdf:RDF>
