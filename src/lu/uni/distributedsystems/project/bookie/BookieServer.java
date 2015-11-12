@@ -19,6 +19,7 @@ import lu.uni.distributedsystems.gsonrmi.server.RpcSocketListener;
 import lu.uni.distributedsystems.project.bookie.exceptions.UnkownGamblerException;
 import lu.uni.distributedsystems.project.common.Bet;
 import lu.uni.distributedsystems.project.common.Match;
+import lu.uni.distributedsystems.project.common.PlaceBetResult;
 
 // Your server implementation should extend the class BaseServer;
 // this way, the setModeOfHost remote method to control how requests
@@ -68,7 +69,7 @@ public class BookieServer extends BaseServer {
 	// he/she is betting on, the amount of the bet and the odds
 	// a message accepting or rejecting the bet will be returned to the gambler
 	@RMI
-	public String placeBet (Bet placedBet){
+	public PlaceBetResult placeBet (Bet placedBet){
 		int matchID = placedBet.getMatchID();
 		String gamblerID = placedBet.getGamblerID();
 		String team = placedBet.getTeam();
@@ -78,7 +79,7 @@ public class BookieServer extends BaseServer {
 		
 		// check if match exists and, if so, the limit that has been set for placed bets
 		if (!bookie.getOpenMatches().containsKey(matchID)){
-			return "Bet REJECTED. Sorry " + gamblerID + ", there is no open match with ID " + matchID;
+			return PlaceBetResult.REJECTED_UNKNOWN_MATCH;
 		}
 		
 		limit = bookie.getOpenMatches().get(matchID).getLimit();
@@ -86,18 +87,17 @@ public class BookieServer extends BaseServer {
 		// check if the team specified by gambler corresponds to one of the teams playing in the match and
 		// if the odds sent by the gambler are correct
 		if (!team.equals(bookie.getOpenMatches().get(matchID).getTeamA()) && !team.equals(bookie.getOpenMatches().get(matchID).getTeamB())){
-			return "Bet REJECTED. Sorry " + gamblerID + ", " + team + " is not playing on match " + matchID;
-		} else if ((team.equals(bookie.getOpenMatches().get(matchID).getTeamA())) && (odds != bookie.getOpenMatches().get(matchID).getOddsA())){
-			return "Bet REJECTED. Sorry " + gamblerID + ", the odds for team " + team + " are: " + bookie.getOpenMatches().get(matchID).getOddsA();
-		} else if ((team.equals(bookie.getOpenMatches().get(matchID).getTeamB())) && (odds != bookie.getOpenMatches().get(matchID).getOddsB())){
-			return "Bet REJECTED. Sorry " + gamblerID + ", the odds for team " + team + " are: " + bookie.getOpenMatches().get(matchID).getOddsB();
+			return PlaceBetResult.REJECTED_UNKNOWN_TEAM;
+		} else if ((team.equals(bookie.getOpenMatches().get(matchID).getTeamA())) && (odds != bookie.getOpenMatches().get(matchID).getOddsA())
+					|| (team.equals(bookie.getOpenMatches().get(matchID).getTeamB())) && (odds != bookie.getOpenMatches().get(matchID).getOddsB())){
+			return PlaceBetResult.REJECTED_ODDS_MISMATCH;
 		}		
 		// check if the gambler has already placed a bet for this match - reject bet, if that is the case
 		// get the total amount of the bets placed on this match
 		for (Bet b : bookie.getPlacedBets()){
 			if (b.getMatchID() == matchID) {
 				if (b.getGamblerID() == gamblerID){
-					return "Bet REJECTED. Sorry " + gamblerID + ", you already have a bet placed on match " + matchID;
+					return PlaceBetResult.REJECTED_ALREADY_PLACED_BET;
 				}
 				betsPlaced += b.getAmount();
 			}
@@ -105,16 +105,11 @@ public class BookieServer extends BaseServer {
 		// if the bet the gambler wants to place goes over the limit, reject it and inform 
 		// gambler how much can he/she still place on this match
 		if ((steak + betsPlaced) > limit){
-			if (betsPlaced == limit){
-				return "Bet REJECTED. Sorry " + gamblerID + ", I am not accepting any more bets for match " + matchID;
-			} else {
-				int acceptedAmount = limit-betsPlaced;
-				return "Bet REJECTED. Sorry " + gamblerID + ", you can no longer bet more than " + acceptedAmount + "€ in match " + matchID;
-			}
+			return PlaceBetResult.REJECTED_LIMIT_EXCEEDED;
 		}
 		// the bet seems valid, let's register it and send confirmation to the gambler
 		bookie.getPlacedBets().add(placedBet);
-		return "Bet ACCEPTED. Thank you, " + gamblerID + ". I will keep you posted on the result. Good luck!";
+		return PlaceBetResult.ACCEPTED;
 	}
 	
 	// method to be invoked by a gambler wanting to get list of matches opened
