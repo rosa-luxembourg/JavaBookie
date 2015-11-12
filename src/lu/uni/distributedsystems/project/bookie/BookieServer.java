@@ -1,6 +1,7 @@
 package lu.uni.distributedsystems.project.bookie;
 
 import java.io.IOException;
+import java.util.Map;
 
 import com.google.code.gsonrmi.Parameter;
 import com.google.code.gsonrmi.RpcRequest;
@@ -15,6 +16,9 @@ import com.google.gson.GsonBuilder;
 import lu.uni.distributedsystems.gsonrmi.server.BaseServer;
 import lu.uni.distributedsystems.gsonrmi.server.Interceptor;
 import lu.uni.distributedsystems.gsonrmi.server.RpcSocketListener;
+import lu.uni.distributedsystems.project.bookie.exceptions.UnkownGamblerException;
+import lu.uni.distributedsystems.project.common.Bet;
+import lu.uni.distributedsystems.project.common.Match;
 
 // Your server implementation should extend the class BaseServer;
 // this way, the setModeOfHost remote method to control how requests
@@ -39,7 +43,11 @@ public class BookieServer extends BaseServer {
 		// type String, returning another String
 		System.out.println("sayHelloToBookie(" + gamblerID + ")");
 		
-		bookie.getGamblerConnection(gamblerID).sayHello();
+		try {
+			bookie.getGamblerConnection(gamblerID).sayHello();
+		} catch (UnkownGamblerException e) {
+			e.getMessage();
+		}
 		
 		return "Bookie says: Hello, gambler " + gamblerID;
 	}
@@ -54,6 +62,67 @@ public class BookieServer extends BaseServer {
 
 	
 	// TODO insert the methods that a Gambler can execute via RPC on this Bookie
+	
+	// method to be invoked by a gambler wanting to place a bet on a match
+	// the gambler must provide his/her ID, the ID of the match, the name of the team
+	// he/she is betting on, the amount of the bet and the odds
+	// a message accepting or rejecting the bet will be returned to the gambler
+	@RMI
+	public String placeBet (Bet placedBet){
+		int matchID = placedBet.getMatchID();
+		String gamblerID = placedBet.getGamblerID();
+		String team = placedBet.getTeam();
+		float odds = placedBet.getOdds();
+		int steak = placedBet.getAmount();
+		int limit, betsPlaced = 0;
+		
+		// check if match exists and, if so, the limit that has been set for placed bets
+		if (!bookie.getOpenMatches().containsKey(matchID)){
+			return "Bet REJECTED. Sorry " + gamblerID + ", there is no open match with ID " + matchID;
+		}
+		
+		limit = bookie.getOpenMatches().get(matchID).getLimit();
+		
+		// check if the team specified by gambler corresponds to one of the teams playing in the match and
+		// if the odds sent by the gambler are correct
+		if (!team.equals(bookie.getOpenMatches().get(matchID).getTeamA()) && !team.equals(bookie.getOpenMatches().get(matchID).getTeamB())){
+			return "Bet REJECTED. Sorry " + gamblerID + ", " + team + " is not playing on match " + matchID;
+		} else if ((team.equals(bookie.getOpenMatches().get(matchID).getTeamA())) && (odds != bookie.getOpenMatches().get(matchID).getOddsA())){
+			return "Bet REJECTED. Sorry " + gamblerID + ", the odds for team " + team + " are: " + bookie.getOpenMatches().get(matchID).getOddsA();
+		} else if ((team.equals(bookie.getOpenMatches().get(matchID).getTeamB())) && (odds != bookie.getOpenMatches().get(matchID).getOddsB())){
+			return "Bet REJECTED. Sorry " + gamblerID + ", the odds for team " + team + " are: " + bookie.getOpenMatches().get(matchID).getOddsB();
+		}		
+		// check if the gambler has already placed a bet for this match - reject bet, if that is the case
+		// get the total amount of the bets placed on this match
+		for (Bet b : bookie.getPlacedBets()){
+			if (b.getMatchID() == matchID) {
+				if (b.getGamblerID() == gamblerID){
+					return "Bet REJECTED. Sorry " + gamblerID + ", you already have a bet placed on match " + matchID;
+				}
+				betsPlaced += b.getAmount();
+			}
+		}
+		// if the bet the gambler wants to place goes over the limit, reject it and inform 
+		// gambler how much can he/she still place on this match
+		if ((steak + betsPlaced) > limit){
+			if (betsPlaced == limit){
+				return "Bet REJECTED. Sorry " + gamblerID + ", I am not accepting any more bets for match " + matchID;
+			} else {
+				int acceptedAmount = limit-betsPlaced;
+				return "Bet REJECTED. Sorry " + gamblerID + ", you can no longer bet more than " + acceptedAmount + "€ in match " + matchID;
+			}
+		}
+		// the bet seems valid, let's register it and send confirmation to the gambler
+		bookie.getPlacedBets().add(placedBet);
+		return "Bet ACCEPTED. Thank you, " + gamblerID + ". I will keep you posted on the result. Good luck!";
+	}
+	
+	// method to be invoked by a gambler wanting to get list of matches opened
+	// on connected bookies
+	@RMI
+	public Map<Integer, Match> showMatches(){
+		return bookie.getOpenMatches();
+	}
 	
 	
 	public void start() {

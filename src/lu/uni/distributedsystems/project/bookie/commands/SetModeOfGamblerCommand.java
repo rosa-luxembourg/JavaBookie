@@ -2,6 +2,7 @@ package lu.uni.distributedsystems.project.bookie.commands;
 
 import lu.uni.distributedsystems.gsonrmi.server.ServiceMode;
 import lu.uni.distributedsystems.project.bookie.Bookie;
+import lu.uni.distributedsystems.project.bookie.exceptions.UnkownGamblerException;
 import lu.uni.distributedsystems.project.common.command.CommandProcessor;
 import lu.uni.distributedsystems.project.common.command.SetModeCommand;
 
@@ -31,7 +32,11 @@ public class SetModeOfGamblerCommand extends SetModeCommand {
 	 */
 	@Override
 	public void processSetMode(String partnerID, ServiceMode serviceMode) {
-		bookie.setModeOfGambler(partnerID, serviceMode);
+		try {
+			bookie.setModeOfGambler(partnerID, serviceMode);
+		} catch (UnkownGamblerException e) {
+			e.getMessage();
+		}
 	}
 
 	// This method is invoked by the Help Command to display a user guide for this command.

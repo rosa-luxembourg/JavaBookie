@@ -1,8 +1,10 @@
 package lu.uni.distributedsystems.project.bookie;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Scanner;
+import java.util.Set;
 
 import lu.uni.distributedsystems.gsonrmi.server.ServiceMode;
 import lu.uni.distributedsystems.project.bookie.commands.EndBetPhaseCommand;
@@ -10,6 +12,9 @@ import lu.uni.distributedsystems.project.bookie.commands.SetModeOfGamblerCommand
 import lu.uni.distributedsystems.project.bookie.commands.SetOddsCommand;
 import lu.uni.distributedsystems.project.bookie.commands.ShowBetsCommand;
 import lu.uni.distributedsystems.project.bookie.commands.StartBetPhaseCommand;
+import lu.uni.distributedsystems.project.bookie.exceptions.UnkownGamblerException;
+import lu.uni.distributedsystems.project.common.Bet;
+import lu.uni.distributedsystems.project.common.Match;
 import lu.uni.distributedsystems.project.common.command.*;
 
 
@@ -22,11 +27,17 @@ public class Bookie {
 	private BookieServer bookieServer;
 	// directory of all known gambler connections
 	private Map<String, GamblerConnection> gamblerConnections;
+	//set of open matches and placed bets
+	private Map<Integer, Match> openMatches;
+	//directory of bets placed on open matches (the key is the matchID)
+	private Set<Bet> placedBets;
 	
 	// construct a bookie
 	public Bookie(String bookieID, int bookiePort) {
 		this.bookieID = bookieID;
 		this.gamblerConnections = new HashMap<String, GamblerConnection>();
+		this.openMatches = new HashMap<Integer, Match>();
+		this.placedBets = new HashSet<Bet>();
 
 		// create the bookie's JSON-RPC server
 		bookieServer = new BookieServer(this, bookiePort);
@@ -48,11 +59,29 @@ public class Bookie {
 		gamblerConnection.establishSocketConnection();
 		// register gambler connection
 		gamblerConnections.put(gamblerID, gamblerConnection);
+		
+		//inform gambler about open matches
+		if (!openMatches.isEmpty()){
+			for (Match openMatch : openMatches.values()){
+				gamblerConnection.matchStarted(openMatch);
+			}
+		}
 	}
 	
-	public GamblerConnection getGamblerConnection(String gamblerID) {
+	public GamblerConnection getGamblerConnection(String gamblerID) throws UnkownGamblerException {
 		// need to perform sanity check here; gambler might be unknown ...
+		if (gamblerConnections.get(gamblerID) == null){
+			throw new UnkownGamblerException("Gambler " + gamblerID + " is not registered with this bookie!");
+		}
 		return gamblerConnections.get(gamblerID);
+	}
+	
+	public Set<Bet> getPlacedBets(){
+		return placedBets;
+	}
+	
+	public Map<Integer, Match> getOpenMatches(){
+		return openMatches;
 	}
 	
 	
@@ -66,8 +95,9 @@ public class Bookie {
 	
 	
 	
-	public void setModeOfGambler(String gamblerID, ServiceMode serviceMode) {
+	public void setModeOfGambler(String gamblerID, ServiceMode serviceMode) throws UnkownGamblerException {
 		// need to perform sanity check here; gambler might be unknown ...
+		//check done at getGamblerConnection
 		getGamblerConnection(gamblerID).setModeOfHost(serviceMode);
 	}
 
@@ -81,7 +111,12 @@ public class Bookie {
 	public void startBetPhase(String teamA, float oddsA, String teamB, float oddsB, int limit) {
 	
 		// TODO, initiate the bet Phase: 
+		Match startedMatch = new Match(teamA, oddsA, teamB, oddsB, limit);
+		openMatches.put(startedMatch.getId(), startedMatch);
 		
+		for (GamblerConnection gamblerConnection : gamblerConnections.values()) {
+		    gamblerConnection.matchStarted(startedMatch);
+		}
 	}
 
 	
