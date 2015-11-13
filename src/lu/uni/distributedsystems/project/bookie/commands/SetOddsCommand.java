@@ -1,6 +1,8 @@
 package lu.uni.distributedsystems.project.bookie.commands;
 
 import lu.uni.distributedsystems.project.bookie.Bookie;
+import lu.uni.distributedsystems.project.bookie.exceptions.UnknownGameException;
+import lu.uni.distributedsystems.project.bookie.exceptions.UnknownTeamException;
 import lu.uni.distributedsystems.project.common.command.Command;
 import lu.uni.distributedsystems.project.common.command.CommandProcessor;
 
@@ -34,7 +36,13 @@ public class SetOddsCommand extends Command {
 		String team = args[1];
 		float newOdds = Float.parseFloat(args[2]);
 		
-		bookie.setOdds(matchID, team, newOdds);
+		try {
+			bookie.setOdds(matchID, team, newOdds);
+		} catch (UnknownGameException e) {
+			e.getMessage();
+		} catch (UnknownTeamException e) {
+			e.getMessage();
+		}
 	}
 
 	// This method is invoked by the Help Command to display a user guide for this command.

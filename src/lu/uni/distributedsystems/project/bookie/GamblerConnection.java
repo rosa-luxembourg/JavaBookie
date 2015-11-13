@@ -44,5 +44,17 @@ public class GamblerConnection extends JsonRpcConnection {
 		String confirmation = response.result.getValue(String.class, getGson());
 		System.out.println("Gambler " + gamblerID + " sent response: " + confirmation);
 	}
+	
+	public void newOdds(int matchID, String team, float newOdds){
+		Parameter[] params = new Parameter[] { new Parameter(bookie.getBookieID()),
+												new Parameter(matchID),
+												new Parameter(team),
+												new Parameter(newOdds)};
+		RpcResponse response = handleJsonRpcRequest("setOdds", params);
+
+		// do we always need to get a response? some kind of confirmation message?
+		String confirmation = response.result.getValue(String.class, getGson());
+		System.out.println("Gambler " + gamblerID + " sent response: " + confirmation);
+	}
 
 }
