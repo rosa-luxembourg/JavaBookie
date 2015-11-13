@@ -115,7 +115,7 @@ public class Bookie {
 	
 		// TODO, initiate the bet Phase: 
 		// create new match with specified parameters
-		Match startedMatch = new Match(teamA, oddsA, teamB, oddsB, limit);
+		Match startedMatch = new Match(this.bookieID, teamA, oddsA, teamB, oddsB, limit);
 		openMatches.put(startedMatch.getId(), startedMatch);
 		
 		// inform gamblers

@@ -4,14 +4,16 @@ public class Match {
 	
 	private static int count = 0;
 	private int id = 0;
+	private String bookieID;
 	private String teamA;
 	private float oddsA;
 	private String teamB; 
 	private float oddsB; 
 	private int limit;
 	
-	public Match(String teamA, float oddsA, String teamB, float oddsB, int limit){
+	public Match(String bookieID, String teamA, float oddsA, String teamB, float oddsB, int limit){
 		id = ++count;
+		this.bookieID = bookieID;
 		this.teamA = teamA;
 		this.oddsA = oddsA;
 		this.teamB = teamB;
@@ -23,6 +25,10 @@ public class Match {
 		return id;
 	}
 
+	public String getBookieID() {
+		return bookieID;
+	}
+	
 	public String getTeamA() {
 		return teamA;
 	}
@@ -55,6 +61,10 @@ public class Match {
 		this.limit = limit;
 	}
 	
+	@Override
+	public String toString(){
+		return "Bookie " + bookieID + ": Match " + id + " between team " + teamA + " (odds: " + oddsA + ") and team " + teamB + " (odds: " + oddsB + "), limit: " + limit;
+	}
 	
 
 }
