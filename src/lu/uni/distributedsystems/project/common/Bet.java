@@ -65,5 +65,9 @@ public class Bet {
 	public void setBookieID(String bookieID) {
 		this.bookieID = bookieID;
 	}
+	@Override
+	public String toString(){
+		return "Bet ID: " + id + ". Gambler " + gamblerID + " placed " + amount + "€ in team " + team + " with odds " + odds;
+	}
 
 }

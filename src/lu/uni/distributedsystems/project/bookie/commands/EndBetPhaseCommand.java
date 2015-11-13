@@ -1,6 +1,8 @@
 package lu.uni.distributedsystems.project.bookie.commands;
 
 import lu.uni.distributedsystems.project.bookie.Bookie;
+import lu.uni.distributedsystems.project.bookie.exceptions.UnknownGameException;
+import lu.uni.distributedsystems.project.bookie.exceptions.UnknownTeamException;
 import lu.uni.distributedsystems.project.common.command.Command;
 import lu.uni.distributedsystems.project.common.command.CommandProcessor;
 
@@ -34,7 +36,11 @@ public class EndBetPhaseCommand extends Command {
 		int matchID = Integer.parseInt(args[0]);
 		String winningTeam = args[1];
 		
-		bookie.endBetPhase(matchID, winningTeam);
+		try {
+			bookie.endBetPhase(matchID, winningTeam);
+		} catch (UnknownGameException | UnknownTeamException e) {
+			System.err.println(e.getMessage());
+		}
 	}
 
 	// This method is invoked by the Help Command to display a user guide for this command.

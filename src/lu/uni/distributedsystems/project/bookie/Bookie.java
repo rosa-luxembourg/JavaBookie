@@ -2,6 +2,7 @@ package lu.uni.distributedsystems.project.bookie;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Scanner;
 import java.util.Set;
@@ -164,6 +165,9 @@ public class Bookie {
 	public void showBets() {
 				
 		// TODO show all (open) bets placed with this bookie
+		for (Bet b : placedBets){
+			System.out.println(b);
+		}
 	
 	}
 
@@ -177,12 +181,35 @@ public class Bookie {
 	 * The endBetPhase method is called from the EndBetPhaseCommand entered in the Command Line
 	 * 
 	 */
-	public void endBetPhase(int matchID, String winningTeam) {
+	public void endBetPhase(int matchID, String winningTeam) throws UnknownGameException, UnknownTeamException{
 		
 		// TODO terminate a match, set its winner, inform all connected gamblers,
 		
 		// TODO calculate payouts and transfer to winners
 		
+		// check if bookie has inputed valid gameID and team
+		if (!openMatches.containsKey(matchID)){
+			throw new UnknownGameException("There is no open game with ID " + matchID);
+		} else if (!(openMatches.get(matchID).getTeamA().equals(winningTeam)) && !(openMatches.get(matchID).getTeamB().equals(winningTeam))){
+			throw new UnknownTeamException("Team " + winningTeam + " is not playing on this match!");
+		}
+		
+		float amountWon;
+		Iterator<Bet> iterator = placedBets.iterator();
+		while(iterator.hasNext()){
+			Bet b = iterator.next();
+			if (b.getMatchID() == matchID && b.getTeam().equals(winningTeam)){
+				amountWon = b.getAmount() * b.getOdds();
+				gamblerConnections.get(b.getGamblerID()).endBet(matchID, winningTeam, amountWon);
+				// delete Match and bets immediately?
+				iterator.remove();
+			} else {
+				amountWon = 0;
+				gamblerConnections.get(b.getGamblerID()).endBet(matchID, winningTeam, amountWon);
+				iterator.remove();
+			}
+		}
+		openMatches.remove(matchID);
 	}
 	
 	

@@ -56,5 +56,16 @@ public class GamblerConnection extends JsonRpcConnection {
 		String confirmation = response.result.getValue(String.class, getGson());
 		System.out.println("Gambler " + gamblerID + " sent response: " + confirmation);
 	}
+	
+	public void endBet(int matchID, String winningTeam, float amountWon){
+		Parameter[] params = new Parameter[] { new Parameter(bookie.getBookieID()),
+				new Parameter(matchID),
+				new Parameter(winningTeam),
+				new Parameter(amountWon)};
+		RpcResponse response = handleJsonRpcRequest("endBet", params);
+
+		String confirmation = response.result.getValue(String.class, getGson());
+		System.out.println("Gambler " + gamblerID + " sent response: " + confirmation);
+	}
 
 }
