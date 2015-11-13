@@ -116,7 +116,6 @@ public class Bookie {
 		// create new match with specified parameters
 		Match startedMatch = new Match(teamA, oddsA, teamB, oddsB, limit);
 		openMatches.put(startedMatch.getId(), startedMatch);
-		System.out.println("new match created with ID " + startedMatch.getId() + " between " + teamA + "and " + teamB);
 		
 		// inform gamblers
 		for (GamblerConnection gamblerConnection : gamblerConnections.values()) {
@@ -139,16 +138,14 @@ public class Bookie {
 		// check if bookie has inputed valid gameID and team
 		if (!openMatches.containsKey(matchID)){
 			throw new UnknownGameException("There is no open game with ID " + matchID);
-		} else if (!(openMatches.get(matchID).getTeamA().equals(team)) || !(openMatches.get(matchID).equals(team))){
+		} else if (!(openMatches.get(matchID).getTeamA().equals(team)) && !(openMatches.get(matchID).getTeamB().equals(team))){
 			throw new UnknownTeamException("Team " + team + " is not playing on this match!");
 		}
 		// change the odds
 		if (openMatches.get(matchID).getTeamA().equals(team)){
 			openMatches.get(matchID).setOddsA(newOdds);
-			System.out.println("odds from team " + team + "changed to " + openMatches.get(matchID).getOddsA());
 		} else {
 			openMatches.get(matchID).setOddsB(newOdds);
-			System.out.println("odds from team " + team + "changed to " + openMatches.get(matchID).getOddsB());
 		}
 		// inform gamblers
 		for (GamblerConnection gamblerConnection : gamblerConnections.values()) {

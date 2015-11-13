@@ -39,9 +39,9 @@ public class SetOddsCommand extends Command {
 		try {
 			bookie.setOdds(matchID, team, newOdds);
 		} catch (UnknownGameException e) {
-			e.getMessage();
+			System.err.println(e.getMessage());
 		} catch (UnknownTeamException e) {
-			e.getMessage();
+			System.err.println(e.getMessage());
 		}
 	}
 
