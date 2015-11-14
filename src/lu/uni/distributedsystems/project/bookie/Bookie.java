@@ -101,7 +101,7 @@ public class Bookie {
 	public void setModeOfGambler(String gamblerID, ServiceMode serviceMode) throws UnkownGamblerException {
 		// need to perform sanity check here; gambler might be unknown ...
 		//check done at getGamblerConnection
-		getGamblerConnection(gamblerID).setModeOfHost(serviceMode);
+		getGamblerConnection(gamblerID).setModeOfHost(this.bookieID, serviceMode);
 	}
 
 	/* From the Project Description:

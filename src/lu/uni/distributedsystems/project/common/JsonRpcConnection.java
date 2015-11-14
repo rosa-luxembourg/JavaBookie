@@ -84,27 +84,32 @@ public class JsonRpcConnection {
 	 * 
 	 * Refer to the Getting started document for more information.
 	 */
-	public void setModeOfHost(ServiceMode serviceMode) {
+	public void setModeOfHost(String bookieID, ServiceMode serviceMode) {
 		Parameter[] params = new Parameter[] {
 				new Parameter(socket.getLocalAddress().getHostAddress()),
 				new Parameter(socket.getLocalPort()),
 				new Parameter(serviceMode)
 				};
-		handleJsonRpcRequest("setModeOfHost", params);
+		// since setModeOfHost is used only for simulation purposes,
+		// its request id will always be the concatenation of the bookie id 
+		// with the fixed sequence number: 0
+		String requestID = bookieID + 0;
+		handleJsonRpcRequest(requestID, "setModeOfHost", params);
 	}
 
 	
 	// TODO adapt this class to the applications needs when sending messages.
-	protected RpcResponse handleJsonRpcRequest(String method, Parameter[] params) {
+	protected RpcResponse handleJsonRpcRequest(String requestID, String method, Parameter[] params) {
 	
 		RpcRequest request = new RpcRequest();
 		RpcResponse response = null;
 	
+		// TODO make sure to assign appropriate ID's
+		// unique request id will be a combination of requester id and sequence number
+		request.id = new Parameter(requestID);
 		request.method = method;
 		request.params = params;
 		
-		// TODO make sure to assign appropriate ID's
-		request.id = new Parameter(42);
 	
 			try {
 				logger.info("sending request: " + gson.toJson(request));
