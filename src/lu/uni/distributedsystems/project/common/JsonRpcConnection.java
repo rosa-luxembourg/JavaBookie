@@ -130,6 +130,8 @@ public class JsonRpcConnection {
 				// TODO Handle the case of a connection loss
 				
 				logger.info("server connection dropped");
+				// in case of connection loss, reestablish the connection with gambler immediately
+				establishSocketConnection();
 			}
 		
 		return response;
