@@ -93,7 +93,8 @@ public class Bookie {
 		// shut down all gambler connections
 		for (GamblerConnection gamblerConnection : gamblerConnections.values())
 			gamblerConnection.closeConnection();
-		// TODO must shut down JSON-RPC server
+		// TODO must shut down JSON-RPC server:
+		bookieServer.shutDown();
 	}
 	
 	

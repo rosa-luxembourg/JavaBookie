@@ -31,7 +31,9 @@ public class BookieServer extends BaseServer {
 	private Bookie bookie;
 	// port on which the bookie's JSON-RPC server listens
 	private int bookiePort;
+	// responses to processBet requests, mapped by requestID
 	private Map<String, RpcResponse> processedResponses;
+	private RpcSocketListener socketLis;
 	
 	public BookieServer(Bookie bookie, int bookiePort) {
 		this.bookie = bookie;
@@ -164,6 +166,7 @@ public class BookieServer extends BaseServer {
 				// HINT 2: 	If you want to have more details on the interceptors you can have a look at  
 				//			the code in the project GSONRMI, in the package lu.uni.distributedsystems.gsonrmi.server, in the class: RpcConnectionHandler.java
 				
+				// placeBet is the only nonidempotent remote procedure
 				// only when the gambler is invoking the placeBet method will the bookie need to restrain
 				// from processing the bet again and simply return the already generated response
 				// so we will store those responses to send them if we get a second identical request after a 
@@ -181,8 +184,18 @@ public class BookieServer extends BaseServer {
 		
 		// launch a socket listener accepting and handling JSON-RPC requests
 		try {
-			new RpcSocketListener(bookiePort, new RpcTarget(this, gson), gson, interceptor).start();
+			socketLis = new RpcSocketListener(bookiePort, new RpcTarget(this, gson), gson, interceptor);
+			socketLis.start();
 		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public void shutDown(){
+		try {
+			socketLis.shutdown();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
