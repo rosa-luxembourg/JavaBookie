@@ -10,6 +10,7 @@ public class Match {
 	private String teamB; 
 	private float oddsB; 
 	private int limit;
+	private boolean opened;
 	
 	public Match(String bookieID, String teamA, float oddsA, String teamB, float oddsB, int limit){
 		id = ++count;
@@ -19,6 +20,7 @@ public class Match {
 		this.teamB = teamB;
 		this.oddsB = oddsB;
 		this.limit = limit;
+		opened = true;
 	}
 
 	public int getId() {
@@ -59,6 +61,14 @@ public class Match {
 
 	public void setLimit(int limit) {
 		this.limit = limit;
+	}
+	
+	public boolean isOpened() {
+		return opened;
+	}
+
+	public void closeGame() {
+		opened = false;
 	}
 	
 	@Override

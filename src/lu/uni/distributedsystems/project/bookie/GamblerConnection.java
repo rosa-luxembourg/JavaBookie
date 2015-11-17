@@ -1,8 +1,11 @@
 package lu.uni.distributedsystems.project.bookie;
 
+import java.util.Iterator;
+
 import com.google.code.gsonrmi.Parameter;
 import com.google.code.gsonrmi.RpcResponse;
 
+import lu.uni.distributedsystems.project.common.Bet;
 import lu.uni.distributedsystems.project.common.JsonRpcConnection;
 import lu.uni.distributedsystems.project.common.Match;
 
@@ -45,8 +48,8 @@ public class GamblerConnection extends JsonRpcConnection {
 												new Parameter(startedMatch)};
 		RpcResponse response = handleJsonRpcRequest(requestID, "matchStarted", params);
 		
-		// do we always need to get a response? some kind of confirmation message?
-		String confirmation = response.result.getValue(String.class, getGson());
+		// gambler sends boolean to confirm receiving response to his/her request
+		boolean confirmation = response.result.getValue(Boolean.class, getGson());
 		System.out.println("Gambler " + gamblerID + " sent response: " + confirmation);
 	}
 	
@@ -58,12 +61,12 @@ public class GamblerConnection extends JsonRpcConnection {
 												new Parameter(newOdds)};
 		RpcResponse response = handleJsonRpcRequest(requestID, "setOdds", params);
 
-		// do we always need to get a response? some kind of confirmation message?
-		String confirmation = response.result.getValue(String.class, getGson());
+		// gambler sends boolean to confirm receiving response to his/her request
+		boolean confirmation = response.result.getValue(Boolean.class, getGson());
 		System.out.println("Gambler " + gamblerID + " sent response: " + confirmation);
 	}
 	
-	public void endBet(int matchID, String winningTeam, float amountWon){
+	public void endBet(int betID, int matchID, String winningTeam, float amountWon){
 		String requestID = this.bookie.getBookieID() + ++responseSeqNum;
 		Parameter[] params = new Parameter[] { new Parameter(bookie.getBookieID()),
 				new Parameter(matchID),
@@ -71,9 +74,30 @@ public class GamblerConnection extends JsonRpcConnection {
 				new Parameter(amountWon)};
 		RpcResponse response = handleJsonRpcRequest(requestID, "endBet", params);
 		
-		// confirmation is always boolean
-		String confirmation = response.result.getValue(String.class, getGson());
+		// gambler sends boolean to confirm receiving response to his/her request
+		boolean confirmation = response.result.getValue(Boolean.class, getGson());
 		System.out.println("Gambler " + gamblerID + " sent response: " + confirmation);
+		// if we receive a confirmation from the gambler that he has received
+		// and processed the endBet info, we can remove the bet from the opened bets
+		if(confirmation){
+			Iterator<Bet> iterator = bookie.getPlacedBets().iterator();
+			while(iterator.hasNext()){
+				Bet b = iterator.next();
+				if (b.getId() == betID){
+					iterator.remove();
+				}
+			}
+			// if all bets for that game have been removed, then we can also remove the game
+			boolean openBets = false;
+			for (Bet b : bookie.getPlacedBets()){
+				if (b.getMatchID() == matchID){
+					openBets = true;
+				}
+			}
+			if (!openBets){
+				bookie.getOpenMatches().remove(matchID);
+			}
+		}
 	}
 
 }

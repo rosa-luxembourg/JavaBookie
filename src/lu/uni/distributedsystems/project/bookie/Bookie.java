@@ -13,6 +13,7 @@ import lu.uni.distributedsystems.project.bookie.commands.SetModeOfGamblerCommand
 import lu.uni.distributedsystems.project.bookie.commands.SetOddsCommand;
 import lu.uni.distributedsystems.project.bookie.commands.ShowBetsCommand;
 import lu.uni.distributedsystems.project.bookie.commands.StartBetPhaseCommand;
+import lu.uni.distributedsystems.project.bookie.exceptions.AlreadyClosedGameException;
 import lu.uni.distributedsystems.project.bookie.exceptions.UnknownGameException;
 import lu.uni.distributedsystems.project.bookie.exceptions.UnknownTeamException;
 import lu.uni.distributedsystems.project.bookie.exceptions.UnkownGamblerException;
@@ -182,32 +183,35 @@ public class Bookie {
 	 * The endBetPhase method is called from the EndBetPhaseCommand entered in the Command Line
 	 * 
 	 */
-	public void endBetPhase(int matchID, String winningTeam) throws UnknownGameException, UnknownTeamException{
+	public void endBetPhase(int matchID, String winningTeam) throws UnknownGameException, UnknownTeamException, AlreadyClosedGameException{
 		
 		// TODO terminate a match, set its winner, inform all connected gamblers,
 		
 		// TODO calculate payouts and transfer to winners
 		
-		// check if bookie has inputed valid gameID and team
+		// check if bookie has inputed valid gameID and team and if game is still opened
 		if (!openMatches.containsKey(matchID)){
 			throw new UnknownGameException("There is no open game with ID " + matchID);
+		} else if (!openMatches.get(matchID).isOpened()){
+			throw new AlreadyClosedGameException("Game " + matchID + " is already closed!");
 		} else if (!(openMatches.get(matchID).getTeamA().equals(winningTeam)) && !(openMatches.get(matchID).getTeamB().equals(winningTeam))){
 			throw new UnknownTeamException("Team " + winningTeam + " is not playing on this match!");
 		}
-		
+		// close match, inform all connected gamblers about winning team and amount won
+		// delete bet (only when confirmation has been sent from gambler) and game (only
+		// when all bets have been deleted) in gamblerConnection.endBet
 		float amountWon;
 		Iterator<Bet> iterator = placedBets.iterator();
 		while(iterator.hasNext()){
 			Bet b = iterator.next();
 			if (b.getMatchID() == matchID && b.getTeam().equals(winningTeam)){
 				amountWon = b.getAmount() * b.getOdds();
-				gamblerConnections.get(b.getGamblerID()).endBet(matchID, winningTeam, amountWon);
-				// delete Match and bets immediately?
-				iterator.remove();
+				int betID = b.getId(); 
+				gamblerConnections.get(b.getGamblerID()).endBet(betID, matchID, winningTeam, amountWon);
 			} else {
 				amountWon = 0;
-				gamblerConnections.get(b.getGamblerID()).endBet(matchID, winningTeam, amountWon);
-				iterator.remove();
+				int betID = b.getId();
+				gamblerConnections.get(b.getGamblerID()).endBet(betID, matchID, winningTeam, amountWon);
 			}
 		}
 		openMatches.remove(matchID);

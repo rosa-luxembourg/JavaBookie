@@ -74,16 +74,19 @@ public class BookieServer extends BaseServer {
 	// he/she is betting on, the amount of the bet and the odds
 	// a message accepting or rejecting the bet will be returned to the gambler
 	@RMI
-	public PlaceBetResult placeBet (String gamblerID, Bet placedBet){
+	public synchronized PlaceBetResult placeBet (String gamblerID, Bet placedBet){
 		int matchID = placedBet.getMatchID();
 		String team = placedBet.getTeam();
 		float odds = placedBet.getOdds();
 		int steak = placedBet.getAmount();
 		int limit, betsPlaced = 0;
 		
-		// check if match exists and, if so, the limit that has been set for placed bets
+		// check if match exists and is opened and, if so, the limit that has been set for placed bets
 		if (!bookie.getOpenMatches().containsKey(matchID)){
 			return PlaceBetResult.REJECTED_UNKNOWN_MATCH;
+		}
+		if (!bookie.getOpenMatches().get(matchID).isOpened()){
+			return PlaceBetResult.REJECTED_CLOSED_MATCH;
 		}
 		
 		limit = bookie.getOpenMatches().get(matchID).getLimit();
