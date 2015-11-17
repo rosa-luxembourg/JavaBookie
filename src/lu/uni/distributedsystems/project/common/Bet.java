@@ -12,16 +12,13 @@ public class Bet {
 	private String bookieID;
 	
 	
-	
-	
-	public Bet(int matchID, int amount, String team, float odds, String gamblerID,
-			String bookieID) {
+		
+	public Bet(String bookieID, int matchID, String team, int amount, float odds) {
 		id = ++count;
 		this.matchID = matchID;
 		this.amount = amount;
 		this.team = team;
 		this.odds = odds;
-		this.gamblerID = gamblerID;
 		this.bookieID = bookieID;
 	}
 
