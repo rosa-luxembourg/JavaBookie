@@ -74,9 +74,8 @@ public class BookieServer extends BaseServer {
 	// he/she is betting on, the amount of the bet and the odds
 	// a message accepting or rejecting the bet will be returned to the gambler
 	@RMI
-	public PlaceBetResult placeBet (Bet placedBet){
+	public PlaceBetResult placeBet (String gamblerID, Bet placedBet){
 		int matchID = placedBet.getMatchID();
-		String gamblerID = placedBet.getGamblerID();
 		String team = placedBet.getTeam();
 		float odds = placedBet.getOdds();
 		int steak = placedBet.getAmount();
@@ -120,7 +119,7 @@ public class BookieServer extends BaseServer {
 	// method to be invoked by a gambler wanting to get list of matches opened
 	// on connected bookies
 	@RMI
-	public Map<Integer, Match> showMatches(){
+	public Map<Integer, Match> showMatches(String gamblerID){
 		return bookie.getOpenMatches();
 	}
 	

@@ -70,7 +70,8 @@ public class GamblerConnection extends JsonRpcConnection {
 				new Parameter(winningTeam),
 				new Parameter(amountWon)};
 		RpcResponse response = handleJsonRpcRequest(requestID, "endBet", params);
-
+		
+		// confirmation is always boolean
 		String confirmation = response.result.getValue(String.class, getGson());
 		System.out.println("Gambler " + gamblerID + " sent response: " + confirmation);
 	}
