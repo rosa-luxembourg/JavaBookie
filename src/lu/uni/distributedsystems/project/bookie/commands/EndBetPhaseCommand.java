@@ -1,7 +1,6 @@
 package lu.uni.distributedsystems.project.bookie.commands;
 
 import lu.uni.distributedsystems.project.bookie.Bookie;
-import lu.uni.distributedsystems.project.bookie.exceptions.AlreadyClosedGameException;
 import lu.uni.distributedsystems.project.bookie.exceptions.UnknownGameException;
 import lu.uni.distributedsystems.project.bookie.exceptions.UnknownTeamException;
 import lu.uni.distributedsystems.project.common.command.Command;
@@ -39,7 +38,7 @@ public class EndBetPhaseCommand extends Command {
 		
 		try {
 			bookie.endBetPhase(matchID, winningTeam);
-		} catch (UnknownGameException | UnknownTeamException | AlreadyClosedGameException e) {
+		} catch (UnknownGameException | UnknownTeamException e) {
 			System.err.println(e.getMessage());
 		}
 	}

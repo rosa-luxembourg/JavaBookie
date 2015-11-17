@@ -45,8 +45,8 @@ public class GamblerConnection extends JsonRpcConnection {
 												new Parameter(startedMatch)};
 		RpcResponse response = handleJsonRpcRequest(requestID, "matchStarted", params);
 		
-		// gambler sends boolean to indicate is as received the response to his request
-		boolean confirmation = response.result.getValue(Boolean.class, getGson());
+		// do we always need to get a response? some kind of confirmation message?
+		String confirmation = response.result.getValue(String.class, getGson());
 		System.out.println("Gambler " + gamblerID + " sent response: " + confirmation);
 	}
 	
@@ -58,8 +58,8 @@ public class GamblerConnection extends JsonRpcConnection {
 												new Parameter(newOdds)};
 		RpcResponse response = handleJsonRpcRequest(requestID, "setOdds", params);
 
-		// gambler sends boolean to indicate is as received the response to his request
-		boolean confirmation = response.result.getValue(Boolean.class, getGson());
+		// do we always need to get a response? some kind of confirmation message?
+		String confirmation = response.result.getValue(String.class, getGson());
 		System.out.println("Gambler " + gamblerID + " sent response: " + confirmation);
 	}
 	
@@ -71,8 +71,8 @@ public class GamblerConnection extends JsonRpcConnection {
 				new Parameter(amountWon)};
 		RpcResponse response = handleJsonRpcRequest(requestID, "endBet", params);
 		
-		// gambler sends boolean to indicate is as received the response to his request
-		boolean confirmation = response.result.getValue(Boolean.class, getGson());
+		// confirmation is always boolean
+		String confirmation = response.result.getValue(String.class, getGson());
 		System.out.println("Gambler " + gamblerID + " sent response: " + confirmation);
 	}
 
