@@ -31,7 +31,7 @@ public class BookieServer extends BaseServer {
 	private Bookie bookie;
 	// port on which the bookie's JSON-RPC server listens
 	private int bookiePort;
-	// responses to processBet requests, mapped by requestID
+	// responses to processBet requests, mapped by gamblerID (we keep only one response per gambler)
 	private Map<String, RpcResponse> processedResponses;
 	private RpcSocketListener socketLis;
 	
@@ -154,10 +154,16 @@ public class BookieServer extends BaseServer {
 			// but in case we already have a response for that request, 
 			// we just send it without having to process the request again 
 			public RpcResponse interceptRequest(RpcRequest request) {
-				if (processedResponses.containsKey(gson.toJson(request.id))){
-					return processedResponses.get(gson.toJson(request.id));
-				}
+				String requestID = gson.toJson(request.id);
+				Parameter[] requestParam = request.params;
+				String gamblerID = gson.toJson(requestParam[0]);
+				
 				System.out.println("intercepted request: " + gson.toJson(request));
+				if (processedResponses.containsKey(gamblerID) && gson.toJson(processedResponses.get(gamblerID).id).equals(requestID)){
+					System.out.println("Sending stored response...");
+					return processedResponses.get(gamblerID);
+				}
+				System.out.println("Processing new request...");
 				return null;
 			}
 			
@@ -173,9 +179,13 @@ public class BookieServer extends BaseServer {
 				// from processing the bet again and simply return the already generated response
 				// so we will store those responses to send them if we get a second identical request after a 
 				// placed bet in DISCONNECT_BEFORE_REPLY mode
-				String requestID = gson.toJson(request.id);
-				if (request.method.equals("placeBet") && !(processedResponses.containsKey(requestID))){				
-				    processedResponses.put(requestID, response);
+				// only a maximum of one response per gambler will be stored. we keep only the last response
+				// since, as clients can make only one request at a time, the bookie server can interpret
+				// each NEW request as an acknowledgement of the previous reply
+				Parameter[] requestParam = request.params;
+				String gamblerID = gson.toJson(requestParam[0]);
+				if (request.method.equals("placeBet")){				
+				    processedResponses.put(gamblerID, response);
 				}
 				
 				System.out.println("intercepted response: " + gson.toJson(response) + " for request: " + gson.toJson(request));
