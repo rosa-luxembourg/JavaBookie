@@ -74,11 +74,8 @@ public class BookieServer extends BaseServer {
 	// he/she is betting on, the amount of the bet and the odds
 	// a message accepting or rejecting the bet will be returned to the gambler
 	@RMI
-	public synchronized PlaceBetResult placeBet (String gamblerID, Bet placedBet){
-		int matchID = placedBet.getMatchID();
-		String team = placedBet.getTeam();
-		float odds = placedBet.getOdds();
-		int steak = placedBet.getAmount();
+	public synchronized PlaceBetResult placeBet (String gamblerID, int matchID, String team, float odds, int stake){
+		
 		int limit, betsPlaced = 0;
 		
 		// check if match exists and is opened and, if so, the limit that has been set for placed bets
@@ -110,11 +107,11 @@ public class BookieServer extends BaseServer {
 			}
 		}
 		// if the bet the gambler wants to place goes over the limit, reject it and inform 
-		// gambler how much can he/she still place on this match
-		if ((steak + betsPlaced) > limit){
+		if ((stake + betsPlaced) > limit){
 			return PlaceBetResult.REJECTED_LIMIT_EXCEEDED;
 		}
 		// the bet seems valid, let's register it and send confirmation to the gambler
+		Bet placedBet = new Bet(matchID, stake, team, odds, gamblerID, bookie.getBookieID());
 		bookie.getPlacedBets().add(placedBet);
 		return PlaceBetResult.ACCEPTED;
 	}
