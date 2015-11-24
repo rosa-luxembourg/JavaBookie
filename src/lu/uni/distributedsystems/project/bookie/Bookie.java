@@ -78,6 +78,13 @@ public class Bookie {
 		return gamblerConnections.get(gamblerID);
 	}
 	
+	public void removeGamblerConnection(String gamblerID) throws UnkownGamblerException{
+		if (gamblerConnections.get(gamblerID) == null){
+			throw new UnkownGamblerException("Gambler " + gamblerID + " is not registered with this bookie!");
+		}
+		gamblerConnections.remove(gamblerID);
+	}
+	
 	public Set<Bet> getPlacedBets(){
 		return placedBets;
 	}

@@ -100,7 +100,7 @@ public class BookieServer extends BaseServer {
 		// get the total amount of the bets placed on this match
 		for (Bet b : bookie.getPlacedBets()){
 			if (b.getMatchID() == matchID) {
-				if (b.getGamblerID() == gamblerID){
+				if (b.getGamblerID().equals(gamblerID)){
 					return PlaceBetResult.REJECTED_ALREADY_PLACED_BET;
 				}
 				betsPlaced += b.getAmount();
@@ -123,6 +123,18 @@ public class BookieServer extends BaseServer {
 		return bookie.getOpenMatches();
 	}
 	
+	// method to be invoked by a gambler wishing to be
+	// permanently disconnected from bookie
+	@RMI
+	public boolean gamblerExiting(String gamblerID){
+		try {
+			bookie.removeGamblerConnection(gamblerID);
+			return true;
+		} catch (UnkownGamblerException e) {
+			System.err.println(e.getMessage());
+			return false;
+		}
+	}
 	
 	public void start() {
 		// start a JSON-RPC server; all methods tagged with the @RMI annotation will

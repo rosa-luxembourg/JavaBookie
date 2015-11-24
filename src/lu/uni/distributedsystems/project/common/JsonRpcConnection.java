@@ -99,6 +99,7 @@ public class JsonRpcConnection {
 
 	
 	// TODO adapt this class to the applications needs when sending messages.
+	// bookie will try to re-send request 2 more times if he doesn't get a response
 	protected RpcResponse handleJsonRpcRequest(String requestID, String method, Parameter[] params) {
 	
 		RpcRequest request = new RpcRequest();

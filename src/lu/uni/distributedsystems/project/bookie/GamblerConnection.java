@@ -36,6 +36,12 @@ public class GamblerConnection extends JsonRpcConnection {
 		System.out.println("Gambler " + gamblerID + " sent response: " + sayHelloResponse);
 	}
 	
+	public void bookieExiting() {
+		String requestID = this.bookie.getBookieID() + ++responseSeqNum;
+		Parameter[] params = new Parameter[] { new Parameter(bookie.getBookieID()) };
+		RpcResponse response = handleJsonRpcRequest(requestID, "bookieExiting", params);
+	}
+	
 	
 	// TODO insert the needed methods to communicate with a Gambler
 	
