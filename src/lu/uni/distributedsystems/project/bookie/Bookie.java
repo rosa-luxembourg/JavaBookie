@@ -208,7 +208,7 @@ public class Bookie {
 				amountWon = b.getAmount() * b.getOdds();
 				int betID = b.getId(); 
 				gamblerConnections.get(b.getGamblerID()).endBet(betID, matchID, winningTeam, amountWon);
-			} else {
+			} else if (b.getMatchID() == matchID) {
 				amountWon = 0;
 				int betID = b.getId();
 				gamblerConnections.get(b.getGamblerID()).endBet(betID, matchID, winningTeam, amountWon);
