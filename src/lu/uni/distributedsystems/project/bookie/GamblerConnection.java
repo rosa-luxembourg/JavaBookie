@@ -40,6 +40,10 @@ public class GamblerConnection extends JsonRpcConnection {
 		String requestID = this.bookie.getBookieID() + ++responseSeqNum;
 		Parameter[] params = new Parameter[] { new Parameter(bookie.getBookieID()) };
 		RpcResponse response = handleJsonRpcRequest(requestID, "bookieExiting", params);
+		
+		// gambler sends boolean to confirm receiving response to his/her request
+		boolean confirmation = response.result.getValue(Boolean.class, getGson());
+		System.out.println("Gambler " + gamblerID + " sent response: " + confirmation);
 	}
 	
 	
