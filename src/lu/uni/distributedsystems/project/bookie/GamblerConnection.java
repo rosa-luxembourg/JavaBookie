@@ -27,14 +27,7 @@ public class GamblerConnection extends JsonRpcConnection {
 
 	// This sample method is just there for illustration purposes
 	public void sayHello() {
-		String requestID;
-		if(noResponse && bookie.getLastRequestName().equals("sayHello")){
-			requestID = bookie.getLastRequestID();
-		} else {
-			requestID = this.bookie.getBookieID() + ++responseSeqNum;
-			bookie.setLastRquestID(requestID);
-			bookie.setLastRquestName("sayHello");
-		}
+		String requestID = this.bookie.getBookieID() + ++responseSeqNum;
 		Parameter[] params = new Parameter[] { new Parameter(bookie.getBookieID()) };
 		RpcResponse response = handleJsonRpcRequest(requestID, "sayHelloToGambler", params);
 		
@@ -50,14 +43,8 @@ public class GamblerConnection extends JsonRpcConnection {
 	// In order to do that, matchStarted invokes the RPC someMethodName method on the gamblers
 	// sending as parameter a Match object containing all the information on the match
 	public void matchStarted(Match startedMatch){
-		String requestID;
-		if(noResponse && bookie.getLastRequestName().equals("matchStarted")){
-			requestID = bookie.getLastRequestID();
-		} else {
-			requestID = this.bookie.getBookieID() + ++responseSeqNum;
-			bookie.setLastRquestID(requestID);
-			bookie.setLastRquestName("matchStarted");
-		}
+		String requestID = this.bookie.getBookieID() + ++responseSeqNum;
+
 		Parameter[] params = new Parameter[] { new Parameter(bookie.getBookieID()),
 												new Parameter(startedMatch)};
 		RpcResponse response = handleJsonRpcRequest(requestID, "matchStarted", params);

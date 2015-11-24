@@ -35,10 +35,6 @@ public class Bookie {
 	private Map<Integer, Match> openMatches;
 	//directory of bets placed on open matches (the key is the matchID)
 	private Set<Bet> placedBets;
-	// keep record of ID of last sent request in case we need to send the same request
-	private String lastRequestID;
-	// for the same reason, keep record of last request name
-	private String lastRequestName;
 	
 	// construct a bookie
 	public Bookie(String bookieID, int bookiePort) {
@@ -57,22 +53,6 @@ public class Bookie {
 		return bookieID;
 	}
 	
-	public String getLastRequestID() {
-		return lastRequestID;
-	}
-	
-	public void setLastRquestID(String lastRquestID) {
-		this.lastRequestID = lastRquestID;
-	}
-	
-	public String getLastRequestName() {
-		return lastRequestName;
-	}
-	
-	public void setLastRquestName(String lastRquestName) {
-		this.lastRequestName = lastRquestName;
-	}
-
 	public void createNewGamblerConnection(String gamblerID, String gamblerIP, int gamblerPort) {
 		// create a new connection with a gambler at the given address
 		GamblerConnection gamblerConnection = new GamblerConnection(this, gamblerID, gamblerIP, gamblerPort);

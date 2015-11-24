@@ -29,7 +29,6 @@ public class JsonRpcConnection {
 	private Gson gson;             // gson object to use e.g. for serialization/deserialization
 	private Writer writer;         // writer to write to socket's stream
 	private JsonReader jsonReader; // JSON reader to read from socket's stream
-	protected boolean noResponse = false; // in gambler connection we need to check if we got response to previous request
 
 	private static Logger logger = Logger.getLogger(JsonRpcConnection.class.getName());
 	
@@ -129,7 +128,6 @@ public class JsonRpcConnection {
 				// connection to JSON-RPC server is lost
 				
 				// TODO Handle the case of a connection loss
-				//noResponse = true;
 				logger.info("server connection dropped");
 				// in case of connection loss, reestablish the connection with gambler immediately
 				establishSocketConnection();
