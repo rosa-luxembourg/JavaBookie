@@ -74,16 +74,16 @@ public class BookieServer extends BaseServer {
 	// he/she is betting on, the amount of the bet and the odds
 	// a message accepting or rejecting the bet will be returned to the gambler
 	@RMI
-	public synchronized PlaceBetResult placeBet (String gamblerID, int matchID, String team, float odds, int stake){
+	public synchronized String placeBet (String gamblerID, int matchID, String team, float odds, int stake){
 		
-		int limit, betsPlaced = 0;
+		int limit;
 		
 		// check if match exists and is opened and, if so, the limit that has been set for placed bets
 		if (!bookie.getOpenMatches().containsKey(matchID)){
-			return PlaceBetResult.REJECTED_UNKNOWN_MATCH;
+			return PlaceBetResult.REJECTED_UNKNOWN_MATCH.toString();
 		}
 		if (!bookie.getOpenMatches().get(matchID).isOpened()){
-			return PlaceBetResult.REJECTED_CLOSED_MATCH;
+			return PlaceBetResult.REJECTED_CLOSED_MATCH.toString();
 		}
 		
 		limit = bookie.getOpenMatches().get(matchID).getLimit();
@@ -91,29 +91,32 @@ public class BookieServer extends BaseServer {
 		// check if the team specified by gambler corresponds to one of the teams playing in the match and
 		// if the odds sent by the gambler are correct
 		if (!team.equals(bookie.getOpenMatches().get(matchID).getTeamA()) && !team.equals(bookie.getOpenMatches().get(matchID).getTeamB())){
-			return PlaceBetResult.REJECTED_UNKNOWN_TEAM;
+			return PlaceBetResult.REJECTED_UNKNOWN_TEAM.toString();
 		} else if ((team.equals(bookie.getOpenMatches().get(matchID).getTeamA())) && (odds != bookie.getOpenMatches().get(matchID).getOddsA())
 					|| (team.equals(bookie.getOpenMatches().get(matchID).getTeamB())) && (odds != bookie.getOpenMatches().get(matchID).getOddsB())){
-			return PlaceBetResult.REJECTED_ODDS_MISMATCH;
+			return PlaceBetResult.REJECTED_ODDS_MISMATCH.toString();
 		}		
 		// check if the gambler has already placed a bet for this match - reject bet, if that is the case
-		// get the total amount of the bets placed on this match
 		for (Bet b : bookie.getPlacedBets()){
 			if (b.getMatchID() == matchID) {
 				if (b.getGamblerID().equals(gamblerID)){
-					return PlaceBetResult.REJECTED_ALREADY_PLACED_BET;
+					return PlaceBetResult.REJECTED_ALREADY_PLACED_BET.toString();
 				}
-				betsPlaced += b.getAmount();
 			}
 		}
-		// if the bet the gambler wants to place goes over the limit, reject it and inform 
-		if ((stake + betsPlaced) > limit){
-			return PlaceBetResult.REJECTED_LIMIT_EXCEEDED;
+		// if the bet the gambler wants to place goes over the limit, reject it and inform
+		// gambler about current value of limit
+		if (stake > limit){
+			return PlaceBetResult.REJECTED_LIMIT_EXCEEDED.toString() + " You can only bet a maximum amount of " + limit;
 		}
 		// the bet seems valid, let's register it and send confirmation to the gambler
 		Bet placedBet = new Bet(matchID, stake, team, odds, gamblerID, bookie.getBookieID());
 		bookie.getPlacedBets().add(placedBet);
-		return PlaceBetResult.ACCEPTED;
+		// update the limit in the openMatches map such that gamblers
+		// can receive updated info when they need to consult the matches
+		int newLimit = limit-placedBet.getAmount();
+		bookie.getOpenMatches().get(matchID).setLimit(newLimit);
+		return PlaceBetResult.ACCEPTED.toString();
 	}
 	
 	// method to be invoked by a gambler wanting to get list of matches opened

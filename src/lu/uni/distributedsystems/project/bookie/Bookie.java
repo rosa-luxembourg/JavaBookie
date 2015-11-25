@@ -31,9 +31,9 @@ public class Bookie {
 	private BookieServer bookieServer;
 	// directory of all known gambler connections
 	private Map<String, GamblerConnection> gamblerConnections;
-	//set of open matches and placed bets
+	//directory of open matches, mapped by matchID
 	private Map<Integer, Match> openMatches;
-	//directory of bets placed on open matches (the key is the matchID)
+	//set of bets placed on open matches
 	private Set<Bet> placedBets;
 	
 	// construct a bookie
