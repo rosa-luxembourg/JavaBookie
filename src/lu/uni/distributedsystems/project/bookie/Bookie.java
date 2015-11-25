@@ -68,6 +68,13 @@ public class Bookie {
 				gamblerConnection.matchStarted(openMatch);
 			}
 		}
+		// if gambler has money to receive from a previously placed bet
+		// send it to him/her
+		for (Bet b : placedBets){
+			if (b.getAmountDue() != -1) {
+				gamblerConnection.endBet(b.getId(), b.getMatchID(), b.getWinningTeam(), b.getAmountDue());
+			}
+		}
 	}
 	
 	public GamblerConnection getGamblerConnection(String gamblerID) throws UnkownGamblerException {
@@ -95,10 +102,12 @@ public class Bookie {
 	
 	
 	
-	private void shutdown()  {
+	public void shutdown()  {
 		// shut down all gambler connections
-		for (GamblerConnection gamblerConnection : gamblerConnections.values())
+		for (GamblerConnection gamblerConnection : gamblerConnections.values()){
+			gamblerConnection.bookieExiting();
 			gamblerConnection.closeConnection();
+		}			
 		// TODO must shut down JSON-RPC server:
 		bookieServer.shutDown();
 	}
@@ -209,17 +218,26 @@ public class Bookie {
 		Iterator<Bet> iterator = placedBets.iterator();
 		while(iterator.hasNext()){
 			Bet b = iterator.next();
-			if (b.getMatchID() == matchID && b.getTeam().equals(winningTeam)){
-				amountWon = b.getAmount() * b.getOdds();
+			if (b.getMatchID() == matchID){
 				int betID = b.getId(); 
-				gamblerConnections.get(b.getGamblerID()).endBet(betID, matchID, winningTeam, amountWon);
-			} else if (b.getMatchID() == matchID) {
-				amountWon = 0;
-				int betID = b.getId();
-				gamblerConnections.get(b.getGamblerID()).endBet(betID, matchID, winningTeam, amountWon);
+				if (b.getTeam().equals(winningTeam)){
+					amountWon = b.getAmount() * b.getOdds();
+				} else {
+					amountWon = 0;
+				}
+				// if the gambler is no longer connected to the server
+				// store the amount we owe him/her in order to send it when he reconnects
+				if (gamblerConnections.containsKey(b.getGamblerID())){
+					gamblerConnections.get(b.getGamblerID()).endBet(betID, matchID, winningTeam, amountWon);
+				} else {
+					b.setWinningTeam(winningTeam);
+					b.setAmountDue(amountWon);
+				}
+				
 			}
 		}
-		openMatches.remove(matchID);
+		// close game
+		openMatches.get(matchID).closeGame();
 	}
 	
 	
@@ -250,6 +268,7 @@ public class Bookie {
 			new SetOddsCommand(commandProcessor, bookie);
 			new ShowBetsCommand(commandProcessor, bookie);
 			new EndBetPhaseCommand(commandProcessor, bookie);
+			new ExitCommand(commandProcessor, bookie);
 			// start the command processor such that the user can enter commands
 			commandProcessor.start();
 			// wait for the command processor to exit
@@ -260,8 +279,8 @@ public class Bookie {
 		finally {
 			consoleScanner.close();
 			// make sure the socket connections are closed, whatever happens ... 
-			if (bookie != null)
-				bookie.shutdown();
+			//if (bookie != null)
+				//bookie.shutdown();
 		}
 	}
 

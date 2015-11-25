@@ -132,6 +132,7 @@ public class BookieServer extends BaseServer {
 	public boolean gamblerExiting(String gamblerID){
 		try {
 			bookie.removeGamblerConnection(gamblerID);
+			System.out.println("Gambler " + gamblerID + " was disconnected");
 			return true;
 		} catch (UnkownGamblerException e) {
 			System.err.println(e.getMessage());

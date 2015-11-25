@@ -10,6 +10,9 @@ public class Bet {
 	private float odds;
 	private String gamblerID;
 	private String bookieID;
+	// money to pay the player if he/she is offline when the bet phase ends
+	private float amountDue;
+	String winningTeam;
 	
 	
 	
@@ -23,6 +26,7 @@ public class Bet {
 		this.odds = odds;
 		this.gamblerID = gamblerID;
 		this.bookieID = bookieID;
+		amountDue = -1;
 	}
 
 	public int getId() {
@@ -64,6 +68,18 @@ public class Bet {
 	}
 	public void setBookieID(String bookieID) {
 		this.bookieID = bookieID;
+	}
+	public float getAmountDue() {
+		return amountDue;
+	}
+	public void setAmountDue(float amountDue) {
+		this.amountDue = amountDue;
+	}
+	public String getWinningTeam() {
+		return winningTeam;
+	}
+	public void setWinningTeam(String winningTeam) {
+		this.winningTeam = winningTeam;
 	}
 	@Override
 	public String toString(){

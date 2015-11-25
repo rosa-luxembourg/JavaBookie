@@ -34,7 +34,7 @@ public class CommandProcessor extends Thread {
 		this.scanner = scanner;
 		commands = new HashMap<String, Command>();
 		running = true;
-		new ExitCommand(this);
+		//new ExitCommand(this);
 		new HelpCommand(this);
 	}
 	

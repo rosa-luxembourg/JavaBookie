@@ -1,5 +1,7 @@
 package lu.uni.distributedsystems.project.common.command;
 
+import lu.uni.distributedsystems.project.bookie.Bookie;
+
 /*
  * This is the implementation for the command line interface of the exit command.
  * 
@@ -8,14 +10,17 @@ package lu.uni.distributedsystems.project.common.command;
  */
 public class ExitCommand extends Command {
 
-	public ExitCommand(CommandProcessor commandProcessor) {
+	public ExitCommand(CommandProcessor commandProcessor, Bookie b) {
 		super(commandProcessor, "exit");
+		this.b = b;
 	}
+	private Bookie b;
 
 	@Override
 	public void process(String[] args) {
 		System.out.println("Exiting ...");
 		// tell associated CommandProcessor to exit
+		b.shutdown();
 		getCommandProcessor().exit();
 	}
 
