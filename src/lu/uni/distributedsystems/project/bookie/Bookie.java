@@ -12,6 +12,7 @@ import lu.uni.distributedsystems.project.bookie.commands.EndBetPhaseCommand;
 import lu.uni.distributedsystems.project.bookie.commands.SetModeOfGamblerCommand;
 import lu.uni.distributedsystems.project.bookie.commands.SetOddsCommand;
 import lu.uni.distributedsystems.project.bookie.commands.ShowBetsCommand;
+import lu.uni.distributedsystems.project.bookie.commands.ShowMatchesCommand;
 import lu.uni.distributedsystems.project.bookie.commands.StartBetPhaseCommand;
 import lu.uni.distributedsystems.project.bookie.exceptions.AlreadyClosedGameException;
 import lu.uni.distributedsystems.project.bookie.exceptions.InvalidTeamNameException;
@@ -193,6 +194,19 @@ public class Bookie {
 		}
 	
 	}
+	
+	/* Shows a list of all matches opened by this bookie.
+	 * 
+	 * 
+	 * The showMatches method is called from the ShowMatchesCommand entered in the Command Line
+	 */
+	public void showMatches() {
+				
+		for (Match m : openMatches.values()){
+			System.out.println(m);
+		}
+	
+	}
 
 	/* From the Project Description:
 	 * 
@@ -276,6 +290,7 @@ public class Bookie {
 			new ShowBetsCommand(commandProcessor, bookie);
 			new EndBetPhaseCommand(commandProcessor, bookie);
 			new ExitCommand(commandProcessor, bookie);
+			new ShowMatchesCommand(commandProcessor, bookie);
 			// start the command processor such that the user can enter commands
 			commandProcessor.start();
 			// wait for the command processor to exit

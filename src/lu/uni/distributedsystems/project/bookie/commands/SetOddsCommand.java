@@ -49,7 +49,7 @@ public class SetOddsCommand extends Command {
 	@Override
 	public void showHelp() {
 		System.out.println("set_odds [match-id] [team] [new odds]");
-		System.out.println("    Changes the odds for a team in a running match,");
-		System.out.println("    and notifies all connected gamblers.");
+		System.out.println("    Changes the odds for a team in a running match, or for");
+		System.out.println("    a draw scenario, and notifies all connected gamblers.");
 	}
 }

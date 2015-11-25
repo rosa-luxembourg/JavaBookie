@@ -47,9 +47,9 @@ public class EndBetPhaseCommand extends Command {
 	// This method is invoked by the Help Command to display a user guide for this command.
 	@Override
 	public void showHelp() {
-		System.out.println("end_bet_phase [match-id]Â [team]");
-		System.out.println("    Terminates a match, determining the team that won. All connected");
-		System.out.println("    gamblers are informed about the outcome. The payouts are calculated");
+		System.out.println("end_bet_phase [match-id] [team]");
+		System.out.println("    Terminates a match, determining the team that won or if the game resulted in a draw.");
+		System.out.println("    All connected gamblers are informed about the outcome. The payouts are calculated");
 		System.out.println("    and transferred to the winners.");
 	}
 

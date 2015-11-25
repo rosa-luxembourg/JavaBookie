@@ -42,7 +42,7 @@ public class SetModeOfGamblerCommand extends SetModeCommand {
 	// This method is invoked by the Help Command to display a user guide for this command.
 	@Override
 	public void showHelp() {
-		System.out.println("set_mode [gambler-id] [service-mode] — sets mode of gambler");
+		System.out.println("set_mode [gambler-id] [service-mode] - sets mode of gambler");
 		System.out.println("    Determines how the gambler with the specified gambler-id handles subsequent requests.");
 		System.out.println("    possible service-modes are: RELIABLE (0), DISCONNECT_BEFORE_PROCESSING (1), DISCONNECT_BEFORE_REPLY (2), and RANDOM (3)");
 		System.out.println("    the service-mode can be specified either by name or by ordinal");

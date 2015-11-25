@@ -4,24 +4,15 @@ import lu.uni.distributedsystems.project.bookie.Bookie;
 import lu.uni.distributedsystems.project.common.command.Command;
 import lu.uni.distributedsystems.project.common.command.CommandProcessor;
 
-
-/*
- * This is the implementation for the command line interface show_bets
- * .
- * To know more about this command look in the Project Description under Command-line interface of the bookie.
- * 
- * Every command extends the class Command that is used by the commandProcessor.
- * 
- */
-public class ShowBetsCommand extends Command {
+public class ShowMatchesCommand extends Command {
 	
 	private Bookie bookie;
 
 	/* 	The constructor calls its parent constructor that registers the String, by which the command can be called
 	 *	from the console, and itself with the commandProcessor.
 	 */
-	public ShowBetsCommand(CommandProcessor commandProcessor, Bookie bookie) {
-		super(commandProcessor, "show_bets");
+	public ShowMatchesCommand(CommandProcessor commandProcessor, Bookie bookie) {
+		super(commandProcessor, "show_matches");
 		this.bookie = bookie;
 	}
 
@@ -31,13 +22,13 @@ public class ShowBetsCommand extends Command {
 	 */
 	@Override
 	public void process(String[] args) {
-		bookie.showBets();
+		bookie.showMatches();
 	}
 
 	// This method is invoked by the Help Command to display a user guide for this command.
 	@Override
 	public void showHelp() {
-		System.out.println("show_bets - shows a list of all open bets");
+		System.out.println("show_matches - shows a list of all open matches");
 	}
 
 }
