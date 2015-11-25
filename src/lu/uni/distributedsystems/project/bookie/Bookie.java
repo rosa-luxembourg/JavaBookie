@@ -14,6 +14,7 @@ import lu.uni.distributedsystems.project.bookie.commands.SetOddsCommand;
 import lu.uni.distributedsystems.project.bookie.commands.ShowBetsCommand;
 import lu.uni.distributedsystems.project.bookie.commands.StartBetPhaseCommand;
 import lu.uni.distributedsystems.project.bookie.exceptions.AlreadyClosedGameException;
+import lu.uni.distributedsystems.project.bookie.exceptions.InvalidTeamNameException;
 import lu.uni.distributedsystems.project.bookie.exceptions.UnknownGameException;
 import lu.uni.distributedsystems.project.bookie.exceptions.UnknownTeamException;
 import lu.uni.distributedsystems.project.bookie.exceptions.UnkownGamblerException;
@@ -127,11 +128,15 @@ public class Bookie {
 	 * i.e. the Match-ID, the participating teams, their odds, and the limit.
 	 * From this point on, the bookie starts accepting bets for that match.
 	 */
-	public void startBetPhase(String teamA, float oddsA, String teamB, float oddsB, int limit) {
+	public void startBetPhase(String teamA, float oddsA, String teamB, float oddsB, float oddsDraw, int limit) throws InvalidTeamNameException {
 	
-		// TODO, initiate the bet Phase: 
+		// TODO, initiate the bet Phase:
+		// teams cannot be called "draw"!
+		if (teamA.equalsIgnoreCase("draw") || teamB.equalsIgnoreCase("draw")){
+			throw new InvalidTeamNameException("Draw is an invalid name for a team. Please enter a different name.");
+		}
 		// create new match with specified parameters
-		Match startedMatch = new Match(this.bookieID, teamA, oddsA, teamB, oddsB, limit);
+		Match startedMatch = new Match(this.bookieID, teamA, oddsA, teamB, oddsB, oddsDraw, limit);
 		openMatches.put(startedMatch.getId(), startedMatch);
 		
 		// inform gamblers
@@ -152,17 +157,19 @@ public class Bookie {
 	public void setOdds(int matchID, String team, float newOdds) throws UnknownGameException, UnknownTeamException {
 		
 		// TODO set the new odds for a team
-		// check if bookie has inputed valid gameID and team
+		// check if bookie has inputed valid gameID and team (or draw option)
 		if (!openMatches.containsKey(matchID)){
 			throw new UnknownGameException("There is no open game with ID " + matchID);
-		} else if (!(openMatches.get(matchID).getTeamA().equals(team)) && !(openMatches.get(matchID).getTeamB().equals(team))){
+		} else if (!(openMatches.get(matchID).getTeamA().equals(team)) && !(openMatches.get(matchID).getTeamB().equals(team)) && !(team.equalsIgnoreCase("draw"))){
 			throw new UnknownTeamException("Team " + team + " is not playing on this match!");
 		}
 		// change the odds
 		if (openMatches.get(matchID).getTeamA().equals(team)){
 			openMatches.get(matchID).setOddsA(newOdds);
-		} else {
+		} else if (openMatches.get(matchID).getTeamB().equals(team)) {
 			openMatches.get(matchID).setOddsB(newOdds);
+		} else {
+			openMatches.get(matchID).setOddsDraw(newOdds);
 		}
 		// inform gamblers
 		for (GamblerConnection gamblerConnection : gamblerConnections.values()) {
@@ -208,7 +215,7 @@ public class Bookie {
 			throw new UnknownGameException("There is no open game with ID " + matchID);
 		} else if (!openMatches.get(matchID).isOpened()){
 			throw new AlreadyClosedGameException("Game " + matchID + " is already closed!");
-		} else if (!(openMatches.get(matchID).getTeamA().equals(winningTeam)) && !(openMatches.get(matchID).getTeamB().equals(winningTeam))){
+		} else if (!(openMatches.get(matchID).getTeamA().equals(winningTeam)) && !(openMatches.get(matchID).getTeamB().equals(winningTeam)) && !(winningTeam.equalsIgnoreCase("draw"))){
 			throw new UnknownTeamException("Team " + winningTeam + " is not playing on this match!");
 		}
 		// close match, inform all connected gamblers about winning team and amount won

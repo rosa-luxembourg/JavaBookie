@@ -8,17 +8,19 @@ public class Match {
 	private String teamA;
 	private float oddsA;
 	private String teamB; 
-	private float oddsB; 
+	private float oddsB;
+	private float oddsDraw;
 	private int limit;
 	private boolean opened;
 	
-	public Match(String bookieID, String teamA, float oddsA, String teamB, float oddsB, int limit){
+	public Match(String bookieID, String teamA, float oddsA, String teamB, float oddsB, float oddsDraw, int limit){
 		id = ++count;
 		this.bookieID = bookieID;
 		this.teamA = teamA;
 		this.oddsA = oddsA;
 		this.teamB = teamB;
 		this.oddsB = oddsB;
+		this.oddsDraw = oddsDraw;
 		this.limit = limit;
 		opened = true;
 	}
@@ -53,6 +55,14 @@ public class Match {
 
 	public void setOddsB(float oddsB) {
 		this.oddsB = oddsB;
+	}
+	
+	public float getOddsDraw() {
+		return oddsDraw;
+	}
+
+	public void setOddsDraw(float oddsDraw) {
+		this.oddsDraw = oddsDraw;
 	}
 
 	public int getLimit() {

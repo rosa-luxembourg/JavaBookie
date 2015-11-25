@@ -88,12 +88,13 @@ public class BookieServer extends BaseServer {
 		
 		limit = bookie.getOpenMatches().get(matchID).getLimit();
 		
-		// check if the team specified by gambler corresponds to one of the teams playing in the match and
+		// check if the team specified by gambler corresponds to one of the teams playing in the match (or to the draw option) and
 		// if the odds sent by the gambler are correct
-		if (!team.equals(bookie.getOpenMatches().get(matchID).getTeamA()) && !team.equals(bookie.getOpenMatches().get(matchID).getTeamB())){
+		if (!team.equals(bookie.getOpenMatches().get(matchID).getTeamA()) && !team.equals(bookie.getOpenMatches().get(matchID).getTeamB()) && !team.equalsIgnoreCase("draw")){
 			return PlaceBetResult.REJECTED_UNKNOWN_TEAM.toString();
 		} else if ((team.equals(bookie.getOpenMatches().get(matchID).getTeamA())) && (odds != bookie.getOpenMatches().get(matchID).getOddsA())
-					|| (team.equals(bookie.getOpenMatches().get(matchID).getTeamB())) && (odds != bookie.getOpenMatches().get(matchID).getOddsB())){
+					|| (team.equals(bookie.getOpenMatches().get(matchID).getTeamB())) && (odds != bookie.getOpenMatches().get(matchID).getOddsB())
+					|| (team.equalsIgnoreCase("draw") && odds != bookie.getOpenMatches().get(matchID).getOddsDraw())){
 			return PlaceBetResult.REJECTED_ODDS_MISMATCH.toString();
 		}		
 		// check if the gambler has already placed a bet for this match - reject bet, if that is the case

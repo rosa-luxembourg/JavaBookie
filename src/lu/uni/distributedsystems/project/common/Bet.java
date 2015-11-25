@@ -83,7 +83,7 @@ public class Bet {
 	}
 	@Override
 	public String toString(){
-		return "Bet ID: " + id + ". Gambler " + gamblerID + " placed " + amount + "€ in team " + team + " with odds " + odds;
+		return "Bet ID: " + id + ". Gambler " + gamblerID + " placed " + amount + "€ in " + team + " with odds " + odds;
 	}
 
 }
