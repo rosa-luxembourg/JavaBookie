@@ -83,7 +83,8 @@ public class Match {
 	
 	@Override
 	public String toString(){
-		return "Bookie " + bookieID + ": Match " + id + " between team " + teamA + " (odds: " + oddsA + ") and team " + teamB + " (odds: " + oddsB + "), limit: " + limit;
+		return "Bookie " + bookieID + ": Match " + id + " between team " + teamA + " (odds: " + oddsA + ") and team " + teamB + 
+				" (odds: " + oddsB + "), odds for a draw: " + oddsDraw + " limit: " + limit;
 	}
 	
 

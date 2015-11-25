@@ -2,7 +2,9 @@ package lu.uni.distributedsystems.project.bookie;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import com.google.code.gsonrmi.Parameter;
 import com.google.code.gsonrmi.RpcRequest;
@@ -128,7 +130,7 @@ public class BookieServer extends BaseServer {
 	}
 	
 	// method to be invoked by a gambler wishing to be
-	// permanently disconnected from bookie
+	// disconnected from bookie
 	@RMI
 	public boolean gamblerExiting(String gamblerID){
 		try {
@@ -139,6 +141,22 @@ public class BookieServer extends BaseServer {
 			System.err.println(e.getMessage());
 			return false;
 		}
+	}
+	
+	// method to be invoked by a gambler wishing to get
+	// the list of bets placed on a certain match
+	@RMI
+	public Set<Bet> getMatchBets(String gamblerID, int matchID){
+		if (!bookie.getOpenMatches().get(matchID).isOpened() || !bookie.getOpenMatches().containsKey(matchID)){
+			return null;
+		}
+		Set<Bet> anonymousBets = new HashSet<Bet>();
+		for (Bet b : bookie.getPlacedBets()){
+			if (b.getMatchID() == matchID){
+				anonymousBets.add(new Bet(b.getMatchID(), b.getAmount(), b.getTeam(), b.getOdds(), "anonymous", bookie.getBookieID()));
+			}
+		}
+		return anonymousBets;
 	}
 	
 	public void start() {
