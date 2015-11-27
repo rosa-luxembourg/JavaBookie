@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
 
+
 /**
  * Reads command lines from the console and triggers execution
  * of the associated Command instance. Requires previous registration

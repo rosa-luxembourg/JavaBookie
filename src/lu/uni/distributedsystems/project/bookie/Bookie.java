@@ -65,6 +65,7 @@ public class Bookie {
 		gamblerConnections.put(gamblerID, gamblerConnection);
 		
 		//inform gambler about open matches
+		/*
 		if (!openMatches.isEmpty()){
 			for (Match openMatch : openMatches.values()){
 				gamblerConnection.matchStarted(openMatch);
@@ -77,6 +78,7 @@ public class Bookie {
 				gamblerConnection.endBet(b.getId(), b.getMatchID(), b.getWinningTeam(), b.getAmountDue());
 			}
 		}
+		*/
 	}
 	
 	public GamblerConnection getGamblerConnection(String gamblerID) throws UnkownGamblerException {
@@ -92,6 +94,10 @@ public class Bookie {
 			throw new UnkownGamblerException("Gambler " + gamblerID + " is not registered with this bookie!");
 		}
 		gamblerConnections.remove(gamblerID);
+	}
+	
+	public Map<String, GamblerConnection> getAllGamblerConnections() {
+		return gamblerConnections;
 	}
 	
 	public Set<Bet> getPlacedBets(){

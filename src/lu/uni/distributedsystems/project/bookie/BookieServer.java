@@ -1,8 +1,11 @@
 package lu.uni.distributedsystems.project.bookie;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -62,9 +65,12 @@ public class BookieServer extends BaseServer {
 
 	// boilerplate code for a gambler who wants to connect to a bookie,
 	// specifying at which IP and port to reach the gambler.
+	// return bookie ID as well as amount the gambler has to collect from 
+	// bets placed in previous connections
 	@RMI
 	public String connect(String gamblerID, String gamblerIP, int gamblerPort) {
 		bookie.createNewGamblerConnection(gamblerID, gamblerIP, gamblerPort);
+	    
 		return bookie.getBookieID();
 	}
 
@@ -159,6 +165,40 @@ public class BookieServer extends BaseServer {
 		return anonymousBets;
 	}
 	
+	// method to bee invoked by a gambler that has
+	// previously disconnected after placing a bet and before
+	// the end of the bet phase to get his winnings
+	@RMI
+	public int getPreviousWinnings(String gamblerID){
+		int amountDue = 0;
+		List<Integer> matchIDs = new ArrayList<Integer>();
+		// search for bets placed by the gambler on closed games that have not yet been payed
+		// add that money to the amount to be returned to the gambler, delete the bet
+		// and keep track of the matchID to eventually delete that match, if there are no other open bets on that match
+		Iterator<Bet> iterator = bookie.getPlacedBets().iterator();
+		while(iterator.hasNext()){
+			Bet b = iterator.next();
+			if (b.getGamblerID().equals(gamblerID) && b.getAmountDue() != -1){
+				amountDue += b.getAmountDue();
+				iterator.remove();
+				matchIDs.add(b.getMatchID());
+			}
+		}
+		// if all bets for the games selected have been removed, then we can also remove the game
+		boolean openBets = false;
+		for (int mid : matchIDs){
+			for (Bet b : bookie.getPlacedBets()){
+				if (b.getMatchID() == mid){
+					openBets = true;
+				}
+			}
+			if (!openBets){
+				bookie.getOpenMatches().remove(mid);
+			}
+		}
+		return amountDue;
+	}
+	
 	public void start() {
 		// start a JSON-RPC server; all methods tagged with the @RMI annotation will
 		// be invokable remotely; all requests as well as all responses will be
@@ -189,9 +229,10 @@ public class BookieServer extends BaseServer {
 				String requestID = gson.toJson(request.id);
 				Parameter[] requestParam = request.params;
 				String gamblerID = gson.toJson(requestParam[0]);
+				String requestMethod = gson.toJson(request.method);
 				
 				System.out.println("intercepted request: " + gson.toJson(request));
-				if (processedResponses.containsKey(gamblerID) && gson.toJson(processedResponses.get(gamblerID).id).equals(requestID)){
+				if (requestMethod.equals("placeBet") && processedResponses.containsKey(gamblerID) && gson.toJson(processedResponses.get(gamblerID).id).equals(requestID)){
 					System.out.println("Sending stored response...");
 					return processedResponses.get(gamblerID);
 				}
@@ -216,8 +257,11 @@ public class BookieServer extends BaseServer {
 				// each NEW request as an acknowledgement of the previous reply
 				Parameter[] requestParam = request.params;
 				String gamblerID = gson.toJson(requestParam[0]);
-				if (request.method.equals("placeBet")){				
+				String requestMethod = gson.toJson(request.method);
+				if (requestMethod.equals("placeBet")){				
 				    processedResponses.put(gamblerID, response);
+				} else {
+					processedResponses.remove(gamblerID);
 				}
 				
 				System.out.println("intercepted response: " + gson.toJson(response) + " for request: " + gson.toJson(request));
