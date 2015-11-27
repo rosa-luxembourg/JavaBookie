@@ -10,10 +10,10 @@ public class Match {
 	private String teamB; 
 	private float oddsB;
 	private float oddsDraw;
-	private int limit;
+	private double limit;
 	private boolean opened;
 	
-	public Match(String bookieID, String teamA, float oddsA, String teamB, float oddsB, float oddsDraw, int limit){
+	public Match(String bookieID, String teamA, float oddsA, String teamB, float oddsB, float oddsDraw, double limit){
 		id = ++count;
 		this.bookieID = bookieID;
 		this.teamA = teamA;
@@ -65,11 +65,11 @@ public class Match {
 		this.oddsDraw = oddsDraw;
 	}
 
-	public int getLimit() {
+	public double getLimit() {
 		return limit;
 	}
 
-	public void setLimit(int limit) {
+	public void setLimit(double limit) {
 		this.limit = limit;
 	}
 	

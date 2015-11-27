@@ -154,30 +154,6 @@ public class JsonRpcConnection {
 					logger.info("server connection dropped");
 					// in case of connection loss, reestablish the connection with gambler immediately
 					establishSocketConnection();
-					// try resending the request a second time
-					try {
-						logger.info("re-sending request: " + gson.toJson(request));
-						// attempting to send the request via the writer to
-						// the JSON-RPC server might throw an IOException
-						writer.write(gson.toJson(request));
-						writer.flush();
-
-						// in case of a connection loss, the following call will throw an exception
-						response = gson.fromJson(jsonReader, RpcResponse.class);
-
-						logger.info("received response: " + gson.toJson(response));
-						
-					}
-					catch (Exception ex3) {
-						// connection to JSON-RPC server is lost
-						
-						// TODO Handle the case of a connection loss
-						//noResponse = true;
-						logger.info("server connection dropped");
-						// in case of connection loss, reestablish the connection with gambler immediately
-						establishSocketConnection();	
-					}
-					
 				}
 			}
 		

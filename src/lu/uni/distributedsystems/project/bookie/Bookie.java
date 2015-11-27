@@ -241,7 +241,7 @@ public class Bookie {
 		// close match, inform all connected gamblers about winning team and amount won
 		// delete bet (only when confirmation has been sent from gambler) and game (only
 		// when all bets have been deleted) in gamblerConnection.endBet
-		float amountWon;
+		double amountWon;
 		Iterator<Bet> iterator = placedBets.iterator();
 		while(iterator.hasNext()){
 			Bet b = iterator.next();

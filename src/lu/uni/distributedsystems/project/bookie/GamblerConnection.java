@@ -77,7 +77,7 @@ public class GamblerConnection extends JsonRpcConnection {
 		System.out.println("Gambler " + gamblerID + " sent response: " + confirmation);
 	}
 	
-	public void endBet(int betID, int matchID, String winningTeam, float amountWon){
+	public void endBet(int betID, int matchID, String winningTeam, double amountWon){
 		String requestID = this.bookie.getBookieID() + ++responseSeqNum;
 		Parameter[] params = new Parameter[] { new Parameter(bookie.getBookieID()),
 				new Parameter(matchID),

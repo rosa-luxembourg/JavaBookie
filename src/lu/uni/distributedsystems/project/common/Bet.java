@@ -5,13 +5,15 @@ public class Bet {
 	private static int count = 0;
 	private int id = 0;
 	private int matchID;
-	private int amount;
+	private double amount;
 	private String team;
 	private float odds;
-	private String gamblerID;
+	// should not be sent in JsonRpcResponse to showMatchBets request!
+	private transient String gamblerID;
 	private String bookieID;
 	// money to pay the player if he/she is offline when the bet phase ends
-	private float amountDue;
+	// should not be sent in JsonRpcResponse to showMatchBets request!
+	private transient double amountDue;
 	String winningTeam;
 	
 	
@@ -39,10 +41,10 @@ public class Bet {
 	public void setMatchID(int matchID) {
 		this.matchID = matchID;
 	}
-	public int getAmount() {
+	public double getAmount() {
 		return amount;
 	}
-	public void setAmount(int amount) {
+	public void setAmount(double amount) {
 		this.amount = amount;
 	}
 	public String getTeam() {
@@ -69,10 +71,10 @@ public class Bet {
 	public void setBookieID(String bookieID) {
 		this.bookieID = bookieID;
 	}
-	public float getAmountDue() {
+	public double getAmountDue() {
 		return amountDue;
 	}
-	public void setAmountDue(float amountDue) {
+	public void setAmountDue(double amountDue) {
 		this.amountDue = amountDue;
 	}
 	public String getWinningTeam() {

@@ -84,7 +84,7 @@ public class BookieServer extends BaseServer {
 	@RMI
 	public synchronized String placeBet (String gamblerID, int matchID, String team, float odds, int stake){
 		
-		int limit;
+		double limit;
 		
 		// check if match exists and is opened and, if so, the limit that has been set for placed bets
 		if (!bookie.getOpenMatches().containsKey(matchID)){
@@ -123,7 +123,7 @@ public class BookieServer extends BaseServer {
 		bookie.getPlacedBets().add(placedBet);
 		// update the limit in the openMatches map such that gamblers
 		// can receive updated info when they need to consult the matches
-		int newLimit = limit-placedBet.getAmount();
+		double newLimit = limit-placedBet.getAmount();
 		bookie.getOpenMatches().get(matchID).setLimit(newLimit);
 		return PlaceBetResult.ACCEPTED.toString();
 	}
@@ -153,13 +153,14 @@ public class BookieServer extends BaseServer {
 	// the list of bets placed on a certain match
 	@RMI
 	public Set<Bet> getMatchBets(String gamblerID, int matchID){
+		// don't return anything if match does not exist, has already been removed or is already closed
 		if (!bookie.getOpenMatches().get(matchID).isOpened() || !bookie.getOpenMatches().containsKey(matchID)){
 			return null;
 		}
 		Set<Bet> anonymousBets = new HashSet<Bet>();
 		for (Bet b : bookie.getPlacedBets()){
 			if (b.getMatchID() == matchID){
-				anonymousBets.add(new Bet(b.getMatchID(), b.getAmount(), b.getTeam(), b.getOdds(), "anonymous", bookie.getBookieID()));
+				anonymousBets.add(b);
 			}
 		}
 		return anonymousBets;
