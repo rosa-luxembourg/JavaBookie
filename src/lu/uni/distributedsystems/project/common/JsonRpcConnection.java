@@ -132,8 +132,9 @@ public class JsonRpcConnection {
 				logger.info("server connection dropped");
 				// in case of connection loss, reestablish the connection with gambler immediately
 				establishSocketConnection();
-				// try re-sending the request
+				// try re-sending the request after 10 seconds
 				try {
+					Thread.sleep(10000);
 					logger.info("re-sending request: " + gson.toJson(request));
 					// attempting to send the request via the writer to
 					// the JSON-RPC server might throw an IOException
