@@ -2,9 +2,11 @@ package lu.uni.distributedsystems.project.bookie;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 import java.util.Set;
@@ -240,10 +242,11 @@ public class Bookie {
 		} else if (!(openMatches.get(matchID).getTeamA().equals(winningTeam)) && !(openMatches.get(matchID).getTeamB().equals(winningTeam)) && !(winningTeam.equalsIgnoreCase("draw"))){
 			throw new UnknownTeamException("Team " + winningTeam + " is not playing on this match!");
 		}
-		// close match, inform all connected gamblers about winning team and amount won
+		// close match, inform all connected gamblers that have placed a bet on this game about winning team and amount won
 		// delete bet (only when confirmation has been sent from gambler) and game (only
 		// when all bets have been deleted) in gamblerConnection.endBet and in bookieServer.getPreviousWinnings
 		double amountWon;
+		List<String> informedGamblers = new ArrayList<String>();
 		Iterator<Bet> iterator = placedBets.iterator();
 		while(iterator.hasNext()){
 			Bet b = iterator.next();
@@ -258,6 +261,7 @@ public class Bookie {
 				}
 				// if the gambler is no longer connected to the server
 				// store the amount we owe him/her in order to send it when he reconnects
+				informedGamblers.add(b.getGamblerID());
 				if (gamblerConnections.containsKey(b.getGamblerID())){
 					gamblerConnections.get(b.getGamblerID()).endBet(betID, matchID, winningTeam, amountWon);
 				} else {
@@ -265,6 +269,20 @@ public class Bookie {
 					b.setAmountDue(amountWon);
 				}
 				
+			}
+		}
+		// inform all other gamblers about the outcome of this match
+		boolean inform = true;
+		int betID = -1; 
+		amountWon = 0;
+		for (String gid : gamblerConnections.keySet()){
+			for (String gambler : informedGamblers){
+				if (gid.equals(gambler)){
+					inform = false;
+				}
+			}
+			if (inform){
+				gamblerConnections.get(gid).endBet(betID, matchID, winningTeam, amountWon);
 			}
 		}
 		// close game
