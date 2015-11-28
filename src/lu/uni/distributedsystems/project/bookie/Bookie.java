@@ -285,8 +285,10 @@ public class Bookie {
 				gamblerConnections.get(gid).endBet(betID, matchID, winningTeam, amountWon);
 			}
 		}
-		// close game
-		openMatches.get(matchID).closeGame();
+		// if game has not yet been removed (still bets to be payed), close game
+		if(openMatches.containsKey(matchID)){
+			openMatches.get(matchID).closeGame();
+		}	
 	}
 	
 	

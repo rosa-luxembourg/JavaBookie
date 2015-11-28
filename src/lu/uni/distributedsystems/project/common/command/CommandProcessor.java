@@ -93,6 +93,7 @@ public class CommandProcessor extends Thread {
 		    	}
 		    	catch (Exception ex) {
 		    		System.err.println("Error executing the command. Maybe a syntax error? You might want to try:");
+		    		ex.printStackTrace();
 		    		command.showHelp();
 		    	}
 		    }
