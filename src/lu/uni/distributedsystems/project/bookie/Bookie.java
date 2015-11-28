@@ -1,5 +1,7 @@
 package lu.uni.distributedsystems.project.bookie;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -240,7 +242,7 @@ public class Bookie {
 		}
 		// close match, inform all connected gamblers about winning team and amount won
 		// delete bet (only when confirmation has been sent from gambler) and game (only
-		// when all bets have been deleted) in gamblerConnection.endBet
+		// when all bets have been deleted) in gamblerConnection.endBet and in bookieServer.getPreviousWinnings
 		double amountWon;
 		Iterator<Bet> iterator = placedBets.iterator();
 		while(iterator.hasNext()){
@@ -248,7 +250,9 @@ public class Bookie {
 			if (b.getMatchID() == matchID){
 				int betID = b.getId(); 
 				if (b.getTeam().equals(winningTeam)){
-					amountWon = b.getAmount() * b.getOdds();
+					BigDecimal amount = BigDecimal.valueOf(b.getAmount());
+					BigDecimal odds = BigDecimal.valueOf(b.getOdds());
+					amountWon = amount.multiply(odds).setScale(2, RoundingMode.HALF_UP).doubleValue();
 				} else {
 					amountWon = 0;
 				}
