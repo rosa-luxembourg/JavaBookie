@@ -227,13 +227,13 @@ public class BookieServer extends BaseServer {
 			// but in case we already have a response for that request, 
 			// we just send it without having to process the request again 
 			public RpcResponse interceptRequest(RpcRequest request) {
-				String requestID = gson.toJson(request.id);
+				String requestID = request.id.getValue(String.class, gson);
 				Parameter[] requestParam = request.params;
-				String gamblerID = gson.toJson(requestParam[0]);
-				String requestMethod = gson.toJson(request.method);
+				String gamblerID = requestParam[0].getValue(String.class, gson);
+				String requestMethod = request.method;
 				
 				System.out.println("intercepted request: " + gson.toJson(request));
-				if (requestMethod.equals("placeBet") && processedResponses.containsKey(gamblerID) && gson.toJson(processedResponses.get(gamblerID).id).equals(requestID)){
+				if (requestMethod.equals("placeBet") && processedResponses.containsKey(gamblerID) && processedResponses.get(gamblerID).id.getValue(String.class, gson).equals(requestID)){
 					System.out.println("Sending stored response...");
 					return processedResponses.get(gamblerID);
 				}
@@ -257,8 +257,8 @@ public class BookieServer extends BaseServer {
 				// since, as clients can make only one request at a time, the bookie server can interpret
 				// each NEW request as an acknowledgement of the previous reply
 				Parameter[] requestParam = request.params;
-				String gamblerID = gson.toJson(requestParam[0]);
-				String requestMethod = gson.toJson(request.method);
+				String gamblerID = requestParam[0].getValue(String.class, gson);
+				String requestMethod = request.method;
 				if (requestMethod.equals("placeBet")){				
 				    processedResponses.put(gamblerID, response);
 				} else {
