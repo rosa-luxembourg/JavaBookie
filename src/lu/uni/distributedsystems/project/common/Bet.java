@@ -14,6 +14,7 @@ public class Bet {
 	// money to pay the player if he/she is offline when the bet phase ends
 	// should not be sent in JsonRpcResponse to showMatchBets request!
 	private transient double amountDue;
+	private transient boolean payed;
 	String winningTeam;
 	
 	
@@ -82,6 +83,12 @@ public class Bet {
 	}
 	public void setWinningTeam(String winningTeam) {
 		this.winningTeam = winningTeam;
+	}
+	public boolean isPayed() {
+		return payed;
+	}
+	public void registerPayment() {
+		this.payed = true;
 	}
 	@Override
 	public String toString(){

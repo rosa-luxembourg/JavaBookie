@@ -89,24 +89,15 @@ public class GamblerConnection extends JsonRpcConnection {
 		boolean confirmation = response.result.getValue(Boolean.class, getGson());
 		System.out.println("Gambler " + gamblerID + " sent response: " + confirmation);
 		// if we receive a confirmation from the gambler that he has received
-		// and processed the endBet info, we can remove the bet from the opened bets
+		// and processed the endBet info, we declare the bet payed
+		// such that it can be deleted (in Bookie.endBetPhase)
 		if(confirmation){
 			Iterator<Bet> iterator = bookie.getPlacedBets().iterator();
 			while(iterator.hasNext()){
 				Bet b = iterator.next();
 				if (b.getId() == betID){
-					iterator.remove();
+					b.registerPayment();
 				}
-			}
-			// if all bets for that game have been removed, then we can also remove the game
-			boolean openBets = false;
-			for (Bet b : bookie.getPlacedBets()){
-				if (b.getMatchID() == matchID){
-					openBets = true;
-				}
-			}
-			if (!openBets){
-				bookie.getOpenMatches().remove(matchID);
 			}
 		}
 	}
