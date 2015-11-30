@@ -117,6 +117,13 @@ public class BookieServer extends BaseServer {
 		// gambler about current value of limit
 		// synchronize this block of code to avoid inconsistencies
 		synchronized(this){
+			// for testing
+			try {
+				Thread.sleep(2000);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 			if (stake > limit){
 				return PlaceBetResult.REJECTED_LIMIT_EXCEEDED.toString() + " You can only bet a maximum amount of " + limit;
 			}
@@ -158,8 +165,9 @@ public class BookieServer extends BaseServer {
 	// the list of bets placed on a certain match
 	@RMI
 	public Set<Bet> getMatchBets(String gamblerID, int matchID){
+		// for testing
 		try {
-			Thread.sleep(1000);
+			Thread.sleep(2000);
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

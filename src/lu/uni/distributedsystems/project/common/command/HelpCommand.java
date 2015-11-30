@@ -30,7 +30,7 @@ public class HelpCommand extends Command {
 	// This method is invoked by the Help Command to display a user guide for this command.
 	@Override
 	public void showHelp() {
-		System.out.println("help — print this list of available commands");
+		System.out.println("help - print this list of available commands");
 	}
 
 }

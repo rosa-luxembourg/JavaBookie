@@ -26,7 +26,7 @@ public class ExitCommand extends Command {
 
 	@Override
 	public void showHelp() {
-		System.out.println("exit — terminate the application");
+		System.out.println("exit - terminate the application");
 	}
 
 }

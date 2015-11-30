@@ -4,8 +4,6 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -227,7 +225,7 @@ public class Bookie {
 	 * The showProfit method is called from the ShowProfitCommand entered in the Command Line
 	 */
 	public void showProfit() {
-			System.out.println("Bookie " + bookieID + ", you currently have a profit of " + profit + "€.");
+			System.out.println("Bookie " + bookieID + ", you currently have a profit of " + profit + "€");
 	}
 	
 
@@ -366,8 +364,8 @@ public class Bookie {
 		finally {
 			consoleScanner.close();
 			// make sure the socket connections are closed, whatever happens ... 
-			//if (bookie != null)
-				//bookie.shutdown();
+			if (bookie != null)
+				bookie.shutdown();
 		}
 	}
 
