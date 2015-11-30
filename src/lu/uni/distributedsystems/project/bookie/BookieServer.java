@@ -82,7 +82,7 @@ public class BookieServer extends BaseServer {
 	// he/she is betting on, the amount of the bet and the odds
 	// a message accepting or rejecting the bet will be returned to the gambler
 	@RMI
-	public synchronized String placeBet (String gamblerID, int matchID, String team, float odds, int stake){
+	public String placeBet (String gamblerID, int matchID, String team, float odds, int stake){
 		
 		double limit;
 		
@@ -115,17 +115,22 @@ public class BookieServer extends BaseServer {
 		}
 		// if the bet the gambler wants to place goes over the limit, reject it and inform
 		// gambler about current value of limit
-		if (stake > limit){
-			return PlaceBetResult.REJECTED_LIMIT_EXCEEDED.toString() + " You can only bet a maximum amount of " + limit;
+		// synchronize this block of code to avoid inconsistencies
+		synchronized(this){
+			if (stake > limit){
+				return PlaceBetResult.REJECTED_LIMIT_EXCEEDED.toString() + " You can only bet a maximum amount of " + limit;
+			}
+			// the bet seems valid, let's register it and send confirmation to the gambler
+			Bet placedBet = new Bet(matchID, stake, team, odds, gamblerID, bookie.getBookieID());
+			bookie.getPlacedBets().add(placedBet);
+			// update bookie's profit
+			bookie.addToProfit(stake);
+			// update the limit in the openMatches map such that gamblers
+			// can receive updated info when they need to consult the matches
+			double newLimit = limit-placedBet.getAmount();
+			bookie.getOpenMatches().get(matchID).setLimit(newLimit);
+			return PlaceBetResult.ACCEPTED.toString();
 		}
-		// the bet seems valid, let's register it and send confirmation to the gambler
-		Bet placedBet = new Bet(matchID, stake, team, odds, gamblerID, bookie.getBookieID());
-		bookie.getPlacedBets().add(placedBet);
-		// update the limit in the openMatches map such that gamblers
-		// can receive updated info when they need to consult the matches
-		double newLimit = limit-placedBet.getAmount();
-		bookie.getOpenMatches().get(matchID).setLimit(newLimit);
-		return PlaceBetResult.ACCEPTED.toString();
 	}
 	
 	// method to be invoked by a gambler wanting to get list of matches opened
@@ -153,6 +158,12 @@ public class BookieServer extends BaseServer {
 	// the list of bets placed on a certain match
 	@RMI
 	public Set<Bet> getMatchBets(String gamblerID, int matchID){
+		try {
+			Thread.sleep(1000);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		// don't return anything if match does not exist, has already been removed or is already closed
 		if (!bookie.getOpenMatches().get(matchID).isOpened() || !bookie.getOpenMatches().containsKey(matchID)){
 			return null;
@@ -169,6 +180,7 @@ public class BookieServer extends BaseServer {
 	// method to bee invoked by a gambler that has
 	// previously disconnected after placing a bet and before
 	// the end of the bet phase to get his winnings
+	// this method will be invoked by gamblers each time they connect to the bookie
 	@RMI
 	public int getPreviousWinnings(String gamblerID){
 		int amountDue = 0;
@@ -179,13 +191,13 @@ public class BookieServer extends BaseServer {
 		Iterator<Bet> iterator = bookie.getPlacedBets().iterator();
 		while(iterator.hasNext()){
 			Bet b = iterator.next();
-			if (b.getGamblerID().equals(gamblerID) && b.getAmountDue() != -1){
+			if (b.getGamblerID().equals(gamblerID) && b.getAmountDue() != -1 && !b.isPayed()){
 				amountDue += b.getAmountDue();
 				iterator.remove();
 				matchIDs.add(b.getMatchID());
 			}
 		}
-		// if all bets for the games selected have been removed, then we can also remove the game
+		// if all bets for the concerned games have been removed, then we can also remove the game
 		boolean openBets = false;
 		for (int mid : matchIDs){
 			for (Bet b : bookie.getPlacedBets()){
@@ -197,6 +209,9 @@ public class BookieServer extends BaseServer {
 				bookie.getOpenMatches().remove(mid);
 			}
 		}
+		// update bookie's profit
+		bookie.substractFromProfit(amountDue);
+		// send money to the gambler
 		return amountDue;
 	}
 	

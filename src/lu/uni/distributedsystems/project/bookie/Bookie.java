@@ -19,6 +19,7 @@ import lu.uni.distributedsystems.project.bookie.commands.SetModeOfGamblerCommand
 import lu.uni.distributedsystems.project.bookie.commands.SetOddsCommand;
 import lu.uni.distributedsystems.project.bookie.commands.ShowBetsCommand;
 import lu.uni.distributedsystems.project.bookie.commands.ShowMatchesCommand;
+import lu.uni.distributedsystems.project.bookie.commands.ShowProfitCommand;
 import lu.uni.distributedsystems.project.bookie.commands.StartBetPhaseCommand;
 import lu.uni.distributedsystems.project.bookie.exceptions.AlreadyClosedGameException;
 import lu.uni.distributedsystems.project.bookie.exceptions.InvalidTeamNameException;
@@ -37,6 +38,8 @@ public class Bookie {
 	private String bookieID;
 	// bookie's JSON-RPC server
 	private BookieServer bookieServer;
+	// keep track of money coming in and going out
+	private double profit;
 	// directory of all known gambler connections
 	private Map<String, GamblerConnection> gamblerConnections;
 	//directory of open matches, mapped by matchID
@@ -47,6 +50,7 @@ public class Bookie {
 	// construct a bookie
 	public Bookie(String bookieID, int bookiePort) {
 		this.bookieID = bookieID;
+		this.profit = 0;
 		this.gamblerConnections = new ConcurrentHashMap<String, GamblerConnection>();
 		this.openMatches = new ConcurrentHashMap<Integer, Match>();
 		this.placedBets = Collections.newSetFromMap(new ConcurrentHashMap<Bet, Boolean>());
@@ -61,6 +65,18 @@ public class Bookie {
 		return bookieID;
 	}
 	
+	public double getProfit(){
+		return profit;
+	}
+	
+	public void addToProfit(double amount){
+		profit += amount;
+	}
+	
+	public void substractFromProfit(double amount){
+		profit -= amount;
+	}
+	
 	public void createNewGamblerConnection(String gamblerID, String gamblerIP, int gamblerPort) {
 		// create a new connection with a gambler at the given address
 		GamblerConnection gamblerConnection = new GamblerConnection(this, gamblerID, gamblerIP, gamblerPort);
@@ -70,21 +86,6 @@ public class Bookie {
 		// register gambler connection
 		gamblerConnections.put(gamblerID, gamblerConnection);
 		
-		//inform gambler about open matches
-		/*
-		if (!openMatches.isEmpty()){
-			for (Match openMatch : openMatches.values()){
-				gamblerConnection.matchStarted(openMatch);
-			}
-		}
-		// if gambler has money to receive from a previously placed bet
-		// send it to him/her
-		for (Bet b : placedBets){
-			if (b.getAmountDue() != -1) {
-				gamblerConnection.endBet(b.getId(), b.getMatchID(), b.getWinningTeam(), b.getAmountDue());
-			}
-		}
-		*/
 	}
 	
 	public GamblerConnection getGamblerConnection(String gamblerID) throws UnkownGamblerException {
@@ -219,6 +220,16 @@ public class Bookie {
 		}
 	
 	}
+	
+	/* Displays the current profit of the bookie.
+	 * 
+	 * 
+	 * The showProfit method is called from the ShowProfitCommand entered in the Command Line
+	 */
+	public void showProfit() {
+			System.out.println("Bookie " + bookieID + ", you currently have a profit of " + profit + "€.");
+	}
+	
 
 	/* From the Project Description:
 	 * 
@@ -344,6 +355,7 @@ public class Bookie {
 			new EndBetPhaseCommand(commandProcessor, bookie);
 			new ExitCommand(commandProcessor, bookie);
 			new ShowMatchesCommand(commandProcessor, bookie);
+			new ShowProfitCommand(commandProcessor, bookie);
 			// start the command processor such that the user can enter commands
 			commandProcessor.start();
 			// wait for the command processor to exit

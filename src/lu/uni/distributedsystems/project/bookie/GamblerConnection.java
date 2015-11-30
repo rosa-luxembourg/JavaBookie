@@ -91,7 +91,9 @@ public class GamblerConnection extends JsonRpcConnection {
 		// if we receive a confirmation from the gambler that he has received
 		// and processed the endBet info, we declare the bet payed
 		// such that it can be deleted (in Bookie.endBetPhase)
+		// and we update the bookie's profit
 		if(confirmation){
+			bookie.substractFromProfit(amountWon);
 			Iterator<Bet> iterator = bookie.getPlacedBets().iterator();
 			while(iterator.hasNext()){
 				Bet b = iterator.next();
